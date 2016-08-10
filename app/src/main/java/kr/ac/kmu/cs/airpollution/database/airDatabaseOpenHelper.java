@@ -87,6 +87,7 @@ public class airDatabaseOpenHelper extends SQLiteOpenHelper {
         db.insert(LATLNG_TABLE_NAME, null, values);
     }
 
+    //delete after 24 Hour
     public void delete_data(SQLiteDatabase db, long currentTime) {
         db.delete(AIRDATA_TABLE_NAME, "time" + "<" + Long.toString(currentTime) + "- 86400", null);
         db.delete(HEARTRATE_TABLE_NAME, "time" + "<" + Long.toString(currentTime) + "- 86400", null);
