@@ -60,7 +60,9 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginLeft="17dp"
                 android:layout_marginRight="17dp"
-                android:text="aa@bb.cc" />
+                android:text="aa@bb.cc"
+                android:singleLine="true"
+                android:selectAllOnFocus="true" />
 
             <EditText
                 android:layout_width="fill_parent"
@@ -76,7 +78,9 @@
                 android:layout_alignStart="@+id/et_Email"
                 android:layout_marginRight="17dp"
                 android:layout_marginBottom="18dp"
-                android:text="1234" />
+                android:text="1234"
+                android:singleLine="true"
+                android:selectAllOnFocus="true" />
         </RelativeLayout>
 
 

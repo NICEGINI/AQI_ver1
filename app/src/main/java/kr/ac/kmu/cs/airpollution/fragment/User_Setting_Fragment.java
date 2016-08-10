@@ -1,11 +1,16 @@
 package kr.ac.kmu.cs.airpollution.fragment;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -41,6 +46,7 @@ public class User_Setting_Fragment extends android.support.v4.app.Fragment {
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 Toast.makeText(getContext(),et_Google_Circle_Size.getText().toString(),Toast.LENGTH_SHORT).show();
                 Const.setCircleSize(Integer.parseInt(et_Google_Circle_Size.getText().toString()));
+                hideSoftKeyboard(et_Google_Circle_Size);
                 return false;
             }
         });
@@ -51,9 +57,59 @@ public class User_Setting_Fragment extends android.support.v4.app.Fragment {
                 MainActivity.setPager(0);
             }
         });
+
+        et_Google_Circle_Size.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(view.getContext());
+
+                alert.setTitle("Google Circle Size");
+                alert.setMessage("Please, input number");
+
+                // Set an EditText view to get user input
+                final EditText input = new EditText(alert.getContext());
+                input.setText(et_Google_Circle_Size.getText().toString());
+                input.setGravity(Gravity.CENTER);
+                alert.setView(input);
+
+                alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        et_Google_Circle_Size.setText(input.getText().toString());
+                        Const.setCircleSize(Integer.parseInt(et_Google_Circle_Size.getText().toString()));
+                        hideSoftKeyboard(input);
+                        // Do something with value!
+                    }
+                });
+
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // Canceled.
+                    }
+                });
+                alert.show();
+            }
+        });
         setInfo();
         return view;
     }
+
+    public void showSoftKeyboard(View view) {
+        if (view.requestFocus()) {
+            InputMethodManager imm = (InputMethodManager)
+                    getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        }
+    }
+
+    public void hideSoftKeyboard(View view) {
+        if (view.requestFocus()) {
+            InputMethodManager imm = (InputMethodManager)
+                    getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(
+                    view.getWindowToken(), 0);
+        }
+    }
+
 
     public static synchronized User_Setting_Fragment getInstance() {
         return Instance;

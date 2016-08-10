@@ -251,10 +251,12 @@ public class Realtime_Fragment extends Fragment {
         }
     }
 
+    // setting current state
     public String setCurrentState(double num){
       return  (num < 51) ? "Good" : (num < 101) ? "Moderrate" : (num < 151) ? "Unhealthy for sensitive groups" : (num < 200) ? "Unhealthy" :
-                (num < 301) ? "Very unhealthy" : (num < 500) ? "Hazardous" : "Moderrate";
+                (num < 301) ? "Very unhealthy" : (num < 500) ? "Hazardous" : "Hazardous";
     }
+
     // setting air AQI data
     public String setAQI(double num, String air, JSONObject obj){
         String AQI="";
