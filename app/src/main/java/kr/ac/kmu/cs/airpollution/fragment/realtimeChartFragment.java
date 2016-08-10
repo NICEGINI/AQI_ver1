@@ -178,8 +178,6 @@ public class realtimeChartFragment extends Fragment implements OnChartValueSelec
                LatLng test = jsonController.getLatlng(realTimeBuffer.indexOf(index));
                 if(test == null){
                     Toast.makeText(getActivity(),"test is null",Toast.LENGTH_LONG).show();
-
-
                 }
                 else{
                     mCallback.changePosition(test); // 콜백을 이용해 지도이동

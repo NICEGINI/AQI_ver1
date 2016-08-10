@@ -115,7 +115,11 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/et_Google_Circle_Size"
                         android:layout_weight="0.8"
-                        android:numeric="decimal" />
+                        android:numeric="decimal"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:editable="false"
+                        android:enabled="true" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -158,7 +162,9 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/editText2"
                         android:layout_weight="0.8"
-                        android:numeric="decimal" />
+                        android:numeric="decimal"
+                        android:gravity="center"
+                        android:singleLine="true" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -201,7 +207,9 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/editText3"
                         android:layout_weight="0.8"
-                        android:numeric="decimal" />
+                        android:numeric="decimal"
+                        android:gravity="center"
+                        android:singleLine="true" />
                 </LinearLayout>
             </LinearLayout>
 

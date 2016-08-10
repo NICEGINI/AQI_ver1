@@ -8,8 +8,6 @@ import android.os.Handler;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -19,21 +17,23 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,11 +42,9 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
 
 import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.R;
@@ -59,9 +57,10 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
     private static String TAG = "Google_Maps_Fragment";
     private static double geo_lat;
     private static double geo_lng;
+    private static LatLng geo_latlng;
     private String select_location;
-    private Geocoder coder;
     private GoogleMap mGoogleMap;
+    private Marker marker;
     private Circle circle;
     private LocationManager locationManager;
     private SupportMapFragment mapFragment;
@@ -86,8 +85,6 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
         mapFragment = (SupportMapFragment) fm.findFragmentById(R.id.fragmetgmap);
         mapFragment.getMapAsync(this);
 
-        // use geocoder
-        coder = new Geocoder(this.getContext());
         return view;
     }
 
@@ -153,17 +150,20 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
 
                 position = new LatLng(lat, lon);
             }
+            // when make the map.
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
 
-            //mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+            // Click map
             mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
                     if (circle != null) circle.remove();
+
                     //String temp = getRegionAddress(latLng.latitude, latLng.longitude);
 
                     geo_lat = latLng.latitude;
                     geo_lng = latLng.longitude;
+                    geo_latlng = new LatLng(geo_lat, geo_lng);
 
                     final String apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
                             + geo_lat + "," + geo_lng;
@@ -176,8 +176,28 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
 
                         @Override
                         protected void onPostExecute(String s) {
+                            if(marker != null)
+                                marker.remove();
 
-                            Toast.makeText(getContext(), select_location,Toast.LENGTH_SHORT).show();
+                            circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
+                                    // Change setBackgroundColor's param to select color
+                                    radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor(setBackgroundColor(40))));
+
+                            // 맵 위치를 이동하기
+                            CameraUpdate update = CameraUpdateFactory.newLatLng(
+                                    geo_latlng);
+
+                            mGoogleMap.moveCamera(update);
+
+                            MarkerOptions markerOptions = new MarkerOptions()
+                                    .position(geo_latlng)
+                                    .title(select_location)
+                                    .snippet("AQI")
+                                    .icon(BitmapDescriptorFactory.defaultMarker(setIconColor(140))); // need to modify
+
+                            marker = mGoogleMap.addMarker(markerOptions);
+                            marker.showInfoWindow();
+                            marker.setVisible(true);
                         }
 
                         @Override
@@ -187,7 +207,7 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
 
                         @Override
                         protected String doInBackground(String... strings) {
-                            getHtml(apiURL);
+                            getLocation(apiURL);
                             return null;
                         }
 
@@ -195,12 +215,21 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
                         protected void onCancelled() {
                         }
                     }.execute();
-
-                    circle = mGoogleMap.addCircle(new CircleOptions().center(latLng).
-                            radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor("#8000e400")));
                 }
             });
         }
+    }
+
+    //set icon color
+    public int setIconColor(float num){
+        return  (num < 51) ? 110 : (num < 101) ? 50 : (num < 151) ? 35 : (num < 200) ? 0 :
+                (num < 301) ? 290 : (num < 500) ? 10 : 10;
+    }
+
+    // setting air color
+    public String setBackgroundColor(double num){
+        return (num < 51) ? "#8000e400" : (num < 101) ? "#80d3d327" : (num < 151) ? "#80ff7e00" : (num < 200) ? "#80ff0000" :
+                (num < 301) ? "#808f3f97" : (num < 500) ? "#807e0023" : "#807e0023";
     }
 
     //set location
@@ -208,45 +237,8 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
         select_location = loc;
     }
 
-    public String getRegionAddress(double lat, double lng) {
-        String apiURL = "http://maps.googleapis.com/maps/api/geocode/json?latlng="
-                + lat + "," + lng;
-
-        String jsonString = new String();
-        String buf;
-        URL url = null;
-        try {
-            url = new URL(apiURL);
-            URLConnection conn = url.openConnection();
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    conn.getInputStream(), "UTF-8"));
-            while ((buf = br.readLine()) != null) {
-                jsonString += buf;
-            }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        JSONObject jObj = null;
-        String result = null;
-        try {
-            jObj = new JSONObject(jsonString);
-            JSONArray jArray = jObj.getJSONArray("results");
-            jObj = (JSONObject) jArray.get(0);
-            jArray = jObj.getJSONArray("address_components");
-            result = (String) ((JSONObject) jArray.get(3)).get("short_name");
-//            result = (String) jObj.get("formatted_address");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return result;
-    }
-
     //get location
-    private String getHtml(String Google_URL){
+    private String getLocation(String Google_URL){
         String jsonString = new String();
         String buf;
         URL url = null;

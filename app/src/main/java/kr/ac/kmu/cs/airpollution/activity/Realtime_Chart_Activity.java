@@ -14,15 +14,18 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,25 +51,32 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
     private static String baseSeleted;
     private static int val;
     private String select_location;
+    private String apiURL;
 
     private LatLng position;
     private double lat; // latitude
     private double lon; // longitude
     private double geo_lat;
     private double geo_lng;
+    private LatLng geo_latlng;
     private Location location;
 
     private Fragment chartFragment = null;
     private FragmentManager fm;
     private FragmentTransaction fragmentTransaction;
     public GoogleMap mGoogleMap;
+    private Marker marker;
     private Circle circle;
     private LocationManager locationManager;
+
     private realtimeChartFragment.ICallback mCallback = new realtimeChartFragment.ICallback() {
         @Override
         public void changePosition(LatLng position) {
-            if(position != null)
-                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position,15));
+            if(position != null) {
+                //mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                setLATLNG(position);
+                setCircleNMarker();
+            }
             Log.d("testtest","okok");
         }
     };
@@ -88,8 +98,6 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
         chartFragment = new realtimeChartFragment();
         realtimeChartFragment.registerCallback(mCallback);
 
-
-
         Log.d(TAG, "Enter the onCreate");
         getFragmentManager().beginTransaction()
                 .replace(R.id.chartFragment, chartFragment).commit();
@@ -98,7 +106,6 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
         mapFragment.getMapAsync(this);
 
         Log.d(TAG, "end fragment");
-
     }
 
 
@@ -127,9 +134,6 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
         //Marker seoul = mGoogleMap.addMarker(new MarkerOptions().position(SEOUL).title("Seoul"));
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE); // 로케이션 매니저 생성
 
-
-
-
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
 
         // 3G,4G,WIFI 사용시
@@ -153,51 +157,93 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
             mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
-                    if (circle != null) circle.remove();
-                    //String temp = getRegionAddress(latLng.latitude, latLng.longitude);
+                    setLATLNG(latLng);
 
-                    geo_lat = latLng.latitude;
-                    geo_lng = latLng.longitude;
-
-                    final String apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
+                    apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
                             + geo_lat + "," + geo_lng;
 
                     new AsyncTask<String, String, String>(){
-                        @Override
-                        protected void onPreExecute() {
-
-                        }
+//                        @Override
+//                        protected void onPreExecute() {
+//
+//                        }
 
                         @Override
                         protected void onPostExecute(String s) {
-
-                            Toast.makeText(Realtime_Chart_Activity.this, select_location,Toast.LENGTH_SHORT).show();
+                            setCircleNMarker();
                         }
-
-                        @Override
-                        protected void onProgressUpdate(String... values) {
-
-                        }
+//
+//                        @Override
+//                        protected void onProgressUpdate(String... values) {
+//
+//                        }
 
                         @Override
                         protected String doInBackground(String... strings) {
-                            getHtml(apiURL);
+                            getLocationResult(apiURL);
                             return null;
                         }
 
-                        @Override
-                        protected void onCancelled() {
-                        }
+//                        @Override
+//                        protected void onCancelled() {
+//                        }
                     }.execute();
-
-                    circle = mGoogleMap.addCircle(new CircleOptions().center(latLng).
-                            radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor("#8000e400")));
                 }
             });
         }
     }
 
-    private String getHtml(String Google_URL){
+    //set Latitude Longitude
+    public void setLATLNG(LatLng latLng){
+        geo_lat = latLng.latitude;
+        geo_lng = latLng.longitude;
+        geo_latlng = new LatLng(geo_lat, geo_lng);
+    }
+
+    //set marker and circle
+    public void setCircleNMarker(){
+        if (circle != null) circle.remove();
+        if(marker != null) marker.remove();
+
+        circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
+                radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor(setBackgroundColor(40))));
+
+        // 맵 위치를 이동하기
+        CameraUpdate update = CameraUpdateFactory.newLatLng(geo_latlng);
+
+        mGoogleMap.moveCamera(update);
+
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(geo_latlng)
+                .title(select_location)
+                .snippet("AQI")
+                .icon(BitmapDescriptorFactory.defaultMarker(setIconColor(140))); // need to modify.
+
+        marker = mGoogleMap.addMarker(markerOptions);
+        marker.showInfoWindow();
+        marker.setVisible(true);
+    }
+
+    //set icon color
+    public int setIconColor(float num){
+        return  (num < 51) ? 110 : (num < 101) ? 50 : (num < 151) ? 35 : (num < 200) ? 0 :
+                (num < 301) ? 290 : (num < 500) ? 10 : 10;
+    }
+
+    // setting air color
+    public String setBackgroundColor(double num){
+        return (num < 51) ? "#8000e400" : (num < 101) ? "#80d3d327" : (num < 151) ? "#80ff7e00" : (num < 200) ? "#80ff0000" :
+                (num < 301) ? "#808f3f97" : (num < 500) ? "#807e0023" : "#807e0023";
+    }
+
+    // setting AQI level
+    public String setCurrentAQIlevel(double num){
+        return  (num < 51) ? "Good" : (num < 101) ? "Moderrate" : (num < 151) ? "Unhealthy for sensitive groups" : (num < 200) ? "Unhealthy" :
+                (num < 301) ? "Very unhealthy" : (num < 500) ? "Hazardous" : "Hazardous";
+    }
+
+    // get location from jsonfile
+    private String getLocationResult(String Google_URL){
         String jsonString = new String();
         String buf;
         URL url = null;
