@@ -52,6 +52,7 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
     private static String baseSeleted;
     private static int val;
     private String select_location;
+    private String apiURL;
 
     private LatLng position;
     private double lat; // latitude
@@ -68,11 +69,15 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
     private Marker marker;
     private Circle circle;
     private LocationManager locationManager;
+
     private realtimeChartFragment.ICallback mCallback = new realtimeChartFragment.ICallback() {
         @Override
         public void changePosition(LatLng position) {
-            if(position != null)
-                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position,15));
+            if(position != null) {
+                //mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                setLATLNG(position);
+                setCircleNMarker();
+            }
             Log.d("testtest","okok");
         }
     };
@@ -94,8 +99,6 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
         chartFragment = new realtimeChartFragment();
         realtimeChartFragment.registerCallback(mCallback);
 
-
-
         Log.d(TAG, "Enter the onCreate");
         getFragmentManager().beginTransaction()
                 .replace(R.id.chartFragment, chartFragment).commit();
@@ -104,7 +107,6 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
         mapFragment.getMapAsync(this);
 
         Log.d(TAG, "end fragment");
-
     }
 
 
@@ -156,51 +158,26 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
             mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
-                    if (circle != null) circle.remove();
-                    //String temp = getRegionAddress(latLng.latitude, latLng.longitude);
+                    setLATLNG(latLng);
 
-                    geo_lat = latLng.latitude;
-                    geo_lng = latLng.longitude;
-                    geo_latlng = new LatLng(geo_lat, geo_lng);
-
-                    final String apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
+                    apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
                             + geo_lat + "," + geo_lng;
 
                     new AsyncTask<String, String, String>(){
-                        @Override
-                        protected void onPreExecute() {
-
-                        }
+//                        @Override
+//                        protected void onPreExecute() {
+//
+//                        }
 
                         @Override
                         protected void onPostExecute(String s) {
-                            if(marker != null)
-                                marker.remove();
-
-                            circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
-                                    radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor(setBackgroundColor(40))));
-
-                            // 맵 위치를 이동하기
-                            CameraUpdate update = CameraUpdateFactory.newLatLng(
-                                    geo_latlng);
-
-                            mGoogleMap.moveCamera(update);
-
-                            MarkerOptions markerOptions = new MarkerOptions()
-                                    .position(geo_latlng)
-                                    .title(select_location)
-                                    .snippet("AQI")
-                                    .icon(BitmapDescriptorFactory.defaultMarker(setIconColor(140))); // need to modify.
-
-                            marker = mGoogleMap.addMarker(markerOptions);
-                            marker.showInfoWindow();
-                            marker.setVisible(true);
+                            setCircleNMarker();
                         }
-
-                        @Override
-                        protected void onProgressUpdate(String... values) {
-
-                        }
+//
+//                        @Override
+//                        protected void onProgressUpdate(String... values) {
+//
+//                        }
 
                         @Override
                         protected String doInBackground(String... strings) {
@@ -208,13 +185,44 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
                             return null;
                         }
 
-                        @Override
-                        protected void onCancelled() {
-                        }
+//                        @Override
+//                        protected void onCancelled() {
+//                        }
                     }.execute();
                 }
             });
         }
+    }
+
+    //set Latitude Longitude
+    public void setLATLNG(LatLng latLng){
+        geo_lat = latLng.latitude;
+        geo_lng = latLng.longitude;
+        geo_latlng = new LatLng(geo_lat, geo_lng);
+    }
+
+    //set marker and circle
+    public void setCircleNMarker(){
+        if (circle != null) circle.remove();
+        if(marker != null) marker.remove();
+
+        circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
+                radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor(setBackgroundColor(40))));
+
+        // 맵 위치를 이동하기
+        CameraUpdate update = CameraUpdateFactory.newLatLng(geo_latlng);
+
+        mGoogleMap.moveCamera(update);
+
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(geo_latlng)
+                .title(select_location)
+                .snippet("AQI")
+                .icon(BitmapDescriptorFactory.defaultMarker(setIconColor(140))); // need to modify.
+
+        marker = mGoogleMap.addMarker(markerOptions);
+        marker.showInfoWindow();
+        marker.setVisible(true);
     }
 
     //set icon color
