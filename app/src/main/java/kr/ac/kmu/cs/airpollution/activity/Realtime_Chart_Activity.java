@@ -14,7 +14,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -181,7 +180,7 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
 
                         @Override
                         protected String doInBackground(String... strings) {
-                            getHtml(apiURL);
+                            getLocationResult(apiURL);
                             return null;
                         }
 
@@ -237,7 +236,14 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
                 (num < 301) ? "#808f3f97" : (num < 500) ? "#807e0023" : "#807e0023";
     }
 
-    private String getHtml(String Google_URL){
+    // setting AQI level
+    public String setCurrentAQIlevel(double num){
+        return  (num < 51) ? "Good" : (num < 101) ? "Moderrate" : (num < 151) ? "Unhealthy for sensitive groups" : (num < 200) ? "Unhealthy" :
+                (num < 301) ? "Very unhealthy" : (num < 500) ? "Hazardous" : "Hazardous";
+    }
+
+    // get location from jsonfile
+    private String getLocationResult(String Google_URL){
         String jsonString = new String();
         String buf;
         URL url = null;

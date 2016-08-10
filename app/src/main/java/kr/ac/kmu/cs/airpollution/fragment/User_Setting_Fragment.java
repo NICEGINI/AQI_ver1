@@ -68,6 +68,7 @@ public class User_Setting_Fragment extends android.support.v4.app.Fragment {
 
                 // Set an EditText view to get user input
                 final EditText input = new EditText(alert.getContext());
+                input.setMaxWidth(80);
                 input.setText(et_Google_Circle_Size.getText().toString());
                 input.setGravity(Gravity.CENTER);
                 alert.setView(input);

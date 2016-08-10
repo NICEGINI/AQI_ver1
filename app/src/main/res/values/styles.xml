@@ -8,4 +8,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
     <style name="DialogTheme" parent="@android:style/Theme.Dialog"/>
+
+    <style name="Hyperlink">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:background">@drawable/hyperlink_underline</item>
+    </style>
+
 </resources>
