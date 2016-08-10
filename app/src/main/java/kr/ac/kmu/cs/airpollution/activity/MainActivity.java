@@ -65,6 +65,7 @@ import kr.ac.kmu.cs.airpollution.ble.DeviceScanActivity;
 import kr.ac.kmu.cs.airpollution.bluetooth.DeviceConnector;
 import kr.ac.kmu.cs.airpollution.bluetooth.DeviceData;
 import kr.ac.kmu.cs.airpollution.bluetooth.DeviceListActivity;
+import kr.ac.kmu.cs.airpollution.controller.httpController;
 import kr.ac.kmu.cs.airpollution.fragment.Realtime_Fragment;
 import kr.ac.kmu.cs.airpollution.service.realtimeService;
 import kr.ac.kmu.cs.airpollution.ble.BluetoothLeService;
@@ -334,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
     };*/
     //=====================================================================
     //블루투스 핸들러 ㅇㅇ
+    boolean isStart = false;
     private final Handler bluetoothHandler = new Handler() {
 
         @Override
@@ -341,8 +343,39 @@ public class MainActivity extends AppCompatActivity {
             //블루투스 핸들러 받은 데이터를 잘 처리한다.
 
             String strData = msg.getData().getString("data");
-            String[] arrayData = strData.split(",");
 
+            JSONObject parser = null;
+            if(isStart){
+//                {"CO":0.2,"NO2":0.0,"O3":0.0,"PM":567,"SO2":0.0,"TEMP":43,"TIME":1451612518,"Type":"RT"}
+                try {
+                    parser = new JSONObject(strData);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(!isStart){
+                Log.d("bt","접근됨");
+                try {
+                    parser = new JSONObject(strData);
+                    String control = parser.getString("control");
+                    String type = parser.getString("type");
+                    String value = parser.getString("value");
+                    if(control.equals("connect") && type.equals("response")){
+                        long epoch = System.currentTimeMillis()/1000;
+                        String recTime = Long.toString(epoch);
+                        new httpController(MainActivity.this).reqConnect(Const.getUserEmail(),recTime,Const.getUdooMac());
+                    }
+                    if(parser != null) Log.d("bt",control+" "+type+" "+value);
+                    Log.d("bt","잘받아짐");
+                    if(Const.getUdooConnectId() != "") isStart = true;
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+                isStart = true;
+            }
             Toast.makeText(getBaseContext(), strData, Toast.LENGTH_SHORT).show();
                 /*Air_Data ar=(Air_Data)msg.getData().getSerializable("data");
             String vv=String.valueOf(ar.co)+","+String.valueOf(ar.co2)+","+String.valueOf(ar.no2)+","
@@ -445,11 +478,10 @@ public class MainActivity extends AppCompatActivity {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, myLocListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 0, myLocListener);
 
         // 3G,4G,WIFI 사용시
-
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, myLocListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 500, 0, myLocListener);
         RFag = Realtime_Fragment.getInstance();
         pager = (ViewPager)findViewById(R.id.pager);
         MFPA = new MyFragmentPagerAdapter(getSupportFragmentManager());

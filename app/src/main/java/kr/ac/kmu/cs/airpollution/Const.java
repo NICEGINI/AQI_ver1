@@ -6,7 +6,38 @@ import java.util.UUID;
  * Created by pabel on 2016-08-03.
  */
 public class Const {
+    public static final String UUID_SERVICE = "00001801-0000-1000-8000-00805f9b34fb";
+    public static final String UUID_DEVICE_NAME = "00002a05-0000-1000-8000-00805f9b34fb";
+
     public static boolean UDOO_CONNECT = false;
+    private static String userEmail; // login user E-mail
+    private static String userPassword;
+    private static int CIRCLE_SIZE = 250;
+    private static boolean UDOO_STATE = false;
+   // private static int connectID_UDOO = -1;
+    private static String UDOO_MAC;
+    private static String UDOO_CONNECT_ID = "";
+
+    public static void setUdooConnectId(String udooConnectId) {
+        UDOO_CONNECT_ID = udooConnectId;
+    }
+
+    public static String getUdooConnectId() {
+        return UDOO_CONNECT_ID;
+    }
+
+
+    public static String getUdooMac() {
+        return UDOO_MAC;
+    }
+
+    public static void setUdooMac(String udooMac) {
+        UDOO_MAC = udooMac;
+    }
+
+
+
+
     public static String getUserEmail() {
         return userEmail;
     }
@@ -14,8 +45,9 @@ public class Const {
         return userPassword;
     }
 
+
     //user info
-    private static String userEmail; // login user E-mail
+
     public static void setUserPassword(String userPassword) {
         Const.userPassword = userPassword;
     }
@@ -24,7 +56,7 @@ public class Const {
         Const.userEmail = userEmail;
     }
 
-    private static String userPassword;
+
 
 
     public static int getCircleSize() {
@@ -36,7 +68,7 @@ public class Const {
     }
 
     //Google Map
-    private static int CIRCLE_SIZE = 250;
+
 
     public static boolean isUdooState() {
         return UDOO_STATE;
@@ -46,20 +78,10 @@ public class Const {
         UDOO_STATE = udooState;
     }
 
-    private static boolean UDOO_STATE = false;
 
-    public static final String UUID_SERVICE = "00001801-0000-1000-8000-00805f9b34fb";
 
-    public static final String UUID_DEVICE_NAME = "00002a05-0000-1000-8000-00805f9b34fb";
 
-    public static void setConnectID_UDOO(int connectID_UDOO) {
-        Const.connectID_UDOO = connectID_UDOO;
-    }
 
-    public static int getConnectID_UDOO() {
-        return connectID_UDOO;
-    }
 
-    private static int connectID_UDOO = -1;
 
 }

@@ -10,6 +10,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,30 +37,34 @@ import kr.ac.kmu.cs.airpollution.activity.MainActivity;
 public class httpController extends AsyncTask<String, String, String> {
 
     public enum HTTP {
-        REQ_LOGIN(0), REQ_CONNECT_UDOO(1), REQ_CONNECT_HEART(2),SEND_UDOO_REAL(3), SEND_HEART_REAL(4);
+        REQ_LOGIN(0), REQ_CONNECT_UDOO(1), REQ_CONNECT_HEART(2), SEND_UDOO_REAL(3), SEND_HEART_REAL(4);
         private int value;
+
         private HTTP(int value) {
             value = value;
         }
+
         public int getValue() {
             return value;
         }
-    };
+    }
+
+    ;
     HTTP now;
 
     Context context; // 컨텍스트
     int control;
     int type;
-    HashMap<String,String> temp = new HashMap<>();
+    HashMap<String, String> temp = new HashMap<>();
     HttpURLConnection conn; // 커넥터
     URL url = null; // 주소
-    public static final int CONNECTION_TIMEOUT=10000;
-    public static final int READ_TIMEOUT=15000;
+    public static final int CONNECTION_TIMEOUT = 10000;
+    public static final int READ_TIMEOUT = 15000;
     public static final String URL_LOGIN = "http://teamb-iot.calit2.net/week3b/bluebase/receive/recieveApp.php/loginAPP";
     public static final String URL_CONNECT = "http://teamb-iot.calit2.net/week3b/bluebase/receive/recieveApp.php/requestConnection";
     public static final String URL_TRANSFER = "http://teamb-iot.calit2.net/week3b/bluebase/receive/recieveApp.php/tansferData";
 
-    public void showMsgDialog(String msg){
+    public void showMsgDialog(String msg) {
         AlertDialog.Builder alert = new AlertDialog.Builder(context);
         alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
@@ -70,57 +75,93 @@ public class httpController extends AsyncTask<String, String, String> {
         alert.setMessage(msg);
         alert.show();
     }
-    public httpController(Context context){
+
+    public httpController(Context context) {
         super();
         this.context = context;
 
     }
-    public void setJSONSetting(){
+
+    public void setJSONSetting() {
         conn.setRequestProperty("Cache-Control", "no-cache");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Accept", "application/json");
     }
+
     //===================================================================
     //로그인 하는부분
     // Triggers when LOGIN Button clicked
-    public void checkLogin(String email,String password) {
+    public void checkLogin(String email, String password) {
         // Initialize  AsyncLogin() class with email and password
-        temp.put("email",email);
-        temp.put("password",password);
+        temp.put("email", email);
+        temp.put("password", password);
         now = HTTP.REQ_LOGIN;
-         execute(URL_LOGIN,email,password);
+        execute(URL_LOGIN, email, password);
     }
 //=========================================================================
 //세션키 받는 부분
 
-    public String makeJSON(String email,String recTime,String devMAC){
-    JSONObject jsonObject = new JSONObject();
-    try {
-        jsonObject.put("email",email);
-        jsonObject.put("recTime",recTime);
-        jsonObject.put("devMAC",devMAC);
-        return jsonObject.toString(4);
+    public String makeJSON(String email, String recTime, String devMAC) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("email", email);
+            jsonObject.put("recTime", recTime);
+            jsonObject.put("devMAC", devMAC);
+            return jsonObject.toString(4);
 
-    } catch (JSONException e) {
-        e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return "";
     }
 
-    return "";
-}
-    public void reqConnect(String email,String recTime,String devMAC) {
+    public void reqConnect(String email, String recTime, String devMAC) {
         //devMAC = FF:FF:FF:FF 와 같이 콜론이 붙어있음 없애줘야됨.
         String temp[] = devMAC.split(":");
         String MAC = "x'";
-        for(int i = 0; i<temp.length;i++){
-            MAC =  MAC.concat(temp[i]);
+        for (int i = 0; i < temp.length; i++) {
+            MAC = MAC.concat(temp[i]);
         }
         now = HTTP.REQ_CONNECT_UDOO;
-        String json = makeJSON(email,recTime,MAC);
+        String json = makeJSON(email, recTime, MAC);
         // Initialize  AsyncLogin() class with email and password
-        execute(URL_CONNECT,json);
+        execute(URL_CONNECT, json);
     }
 
     //=====================================================================
+    //리얼 타임 전송하는 부분
+//    {
+//        "connectionID": 2,
+//            "devType": 1,
+//            "data": [{
+//        " timestamp " : 1470542902,
+//                "SO2": 100,
+//                "NO2": 77,
+//                "O3": 77,
+//                "CO": 77,
+//                "PM": 77,
+//                "temperature": 77,
+//                "latitude": 54.00,
+//                "longitude":110.33
+//    }]
+//  }
+
+        public void sendRealtimeUdoo(String connectID,String json){
+            now = HTTP.SEND_UDOO_REAL;
+            try {
+                JSONObject parser = new JSONObject();
+                parser.put("connectionID",connectID);
+                parser.put("devType","1");
+                JSONArray jsonArray = new JSONArray(json);
+                parser.put("data",jsonArray);
+                execute(URL_TRANSFER,parser.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        };
+
+        //==================================================================
 
 
     @Override
@@ -237,7 +278,11 @@ public class httpController extends AsyncTask<String, String, String> {
                                 break;
                             case REQ_CONNECT_UDOO:
                                 String connectID = parser.getString("connectionID");
+                                Const.setUdooConnectId(connectID);
                                 Toast.makeText(context,"성공적으로 받음"+connectID,Toast.LENGTH_SHORT);
+                                break;
+                            case SEND_UDOO_REAL:
+                                Log.d("realtime","yes send");
                                 break;
                         }
 

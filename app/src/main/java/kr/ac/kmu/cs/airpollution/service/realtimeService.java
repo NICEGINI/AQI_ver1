@@ -7,6 +7,13 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import kr.ac.kmu.cs.airpollution.Buffer.locBuffer;
 import kr.ac.kmu.cs.airpollution.activity.Question_Activity;
 import kr.ac.kmu.cs.airpollution.database.airDatabaseOpenHelper;
 import kr.ac.kmu.cs.airpollution.fragment.Realtime_Fragment;
@@ -48,21 +55,23 @@ public class realtimeService extends Service {
         }*/
         //Toast.makeText(getBaseContext(),"fdas",Toast.LENGTH_SHORT).show();
         flag = true; // start
-        if(loc_Thread == null){
-            loc_Thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (flag){
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
+        final Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(!flag) timer.cancel();
+                long epoch = System.currentTimeMillis()/1000;
+                String recTime = Long.toString(epoch);
+                HashMap<Long,LatLng> test = new HashMap<Long, LatLng>();
+                if(locBuffer.getCurrentLoc() != null){
+                    test.put(epoch,locBuffer.getCurrentLoc());
+                    locBuffer.addLocData(test);
                 }
-            });
-        }
+                Log.d("timerTask",recTime);
+            }
+        },1000,1000);
+
+
         if(service_Thread == null){
             service_Thread = new Thread(new Runnable() {
                 @Override

@@ -33,6 +33,9 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import kr.ac.kmu.cs.airpollution.Const;
+import kr.ac.kmu.cs.airpollution.controller.httpController;
+
 
 public class DeviceConnector {
     private static final String TAG = "DeviceConnector";
@@ -337,6 +340,7 @@ public class DeviceConnector {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            Const.setUdooMac(connectedDevice.getAddress());
          Log.d(TAG,"send start");
 //            temp = "start";
 //            writeData(temp.getBytes());
@@ -363,23 +367,8 @@ public class DeviceConnector {
                     String readed = new String(buffer, 0, bytes);
                     Log.d("bt","읽음");
                     JSONObject parser = null;
-                    try {
-                        parser = new JSONObject(readed);
-                        String control = parser.getString("control");
-                        String type = parser.getString("type");
-                        String value = parser.getString("value");
-                        if(parser != null) Log.d("bt",control+" "+type+" "+value);
-                        Log.d("bt","잘받아짐");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    if(parser != null){
-
-                    }
-                    if(!isStart){
-                        Log.d("bt","접근됨");
+                    if(Const.getUdooConnectId() != "" && !isStart){
                         writeData(sendControlJSON("start","request","").getBytes());
-                        isStart = true;
                     }
                     //if(!connect){ // 아직 연결안됨.
                      //   readControlJSON(readed); // 제이슨을 읽어서 맞는 컨트롤을 함.
