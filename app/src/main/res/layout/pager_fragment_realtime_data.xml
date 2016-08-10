@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/btn_option"
+        android:layout_alignWithParentIfMissing="false"
+        android:clickable="false"
+        android:enabled="true"
+        android:layout_alignBottom="@+id/textView4"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:allowUndo="false"
+        android:background="@drawable/show_menu_icon"
+        android:layout_gravity="right"
+        android:layout_marginTop="1dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/boarder"
+        android:layout_marginTop="1dp">
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:id="@+id/iv_hr"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/heart_frame_fullred"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="123dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BPM"
+            android:id="@+id/textView4"
+            android:textSize="20dp"
+            android:layout_gravity="right"
+            android:layout_below="@+id/tv_hr"
+            android:layout_alignEnd="@+id/tv_hr" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="N/A"
+            android:id="@+id/tv_hr"
+            android:textColor="#FFCDD2"
+            android:textSize="30dp"
+            android:singleLine="false"
+            android:textStyle="bold"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/iv_hr" />
+
+    </RelativeLayout>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="false"
+        android:stretchColumns="*"
+        android:nestedScrollingEnabled="false"
+        android:gravity="center_vertical"
+        android:background="@drawable/boarder">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:background="@drawable/boarder">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="Time: "
+                android:id="@+id/tv_time"
+                android:layout_gravity="center"
+                android:layout_column="0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:text="N/A"
+                android:id="@+id/tv_time_val"
+                android:layout_column="1" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:padding="10dp"
+            android:clickable="false"
+            android:background="#ececed">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="CO"
+                android:id="@+id/tv_co"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="SO2"
+                android:id="@+id/tv_so2"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="NO2"
+                android:id="@+id/tv_no2"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="2" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="10dp"
+            android:background="@drawable/boarder">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="35dp"
+                android:text="N/A"
+                android:id="@+id/tv_co_val"
+                android:layout_column="0"
+                android:layout_gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="35dp"
+                android:text="N/A"
+                android:id="@+id/tv_so2_val"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="35dp"
+                android:text="N/A"
+                android:id="@+id/tv_no2_val"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="2" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="10dp"
+            android:background="#ececed">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="PM2.5"
+                android:id="@+id/tv_pm2.5"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="O3"
+                android:id="@+id/tv_o3"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TEMP"
+                android:textSize="20sp"
+                android:id="@+id/tv_temperature"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="2" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:padding="10dp"
+            android:background="@drawable/boarder">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="35dp"
+                android:text="N/A"
+                android:id="@+id/tv_pm2.5_val"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="35dp"
+                android:text="N/A"
+                android:id="@+id/tv_o3_val"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="35dp"
+                android:text="N/A"
+                android:id="@+id/tv_temp_val"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="2" />
+
+        </TableRow>
+
+    </TableLayout>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="@drawable/boarder">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Current PM2.5 AQI : "
+            android:id="@+id/textView3"
+            android:textSize="30dp"
+            android:gravity="center" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:id="@+id/iv_current_AQI"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:src="@drawable/img_x" />
+        </LinearLayout>
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Unhealthy for sensitive groups"
+            android:id="@+id/tv_Currnet_State"
+            android:textSize="22dp"
+            android:gravity="center" />
+    </TableRow>
+
+
+</LinearLayout>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="good_color">#00e400</color>
+    <color name="moderate_color">#e9e918</color>
+    <color name="unhealthy_for_sp">#ff7e00</color>
+    <color name="my_cyan">#949494</color>
+    <color name="my_sky">#BBDEFB</color>
+    <color name="my_gray">#dedede</color>
+
+</resources>

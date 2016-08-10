@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1"
+    tools:context=".activity.Realtime_Chart_Activity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="257dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.24"
+        >
+
+        <fragment
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/chartFragment"
+            android:name="kr.ac.kmu.cs.airpollution.fragment.realtimeChartFragment"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true" />
+    </RelativeLayout>
+
+    <fragment
+
+        android:layout_width="match_parent"
+        android:layout_height="186dp"
+        android:layout_weight="0.77"
+        class="com.google.android.gms.maps.MapFragment"
+        android:id="@+id/gmap"></fragment>
+</LinearLayout>
