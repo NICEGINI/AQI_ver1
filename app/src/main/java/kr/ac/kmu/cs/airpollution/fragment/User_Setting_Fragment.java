@@ -2,11 +2,11 @@ package kr.ac.kmu.cs.airpollution.fragment;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.icu.text.DecimalFormat;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +14,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.R;
@@ -24,7 +25,10 @@ public class User_Setting_Fragment extends android.support.v4.app.Fragment {
     private View view = null;
 
     private TextView tv_Login_Email;
-    private EditText et_Google_Circle_Size;
+    private TextView tempView;
+    private TextView tv_Google_Circle_Size;
+    private TextView tv_Realtime_Chart_dataset;
+    private TextView tv_UDOO_board_Receive_Timeset;
     private Button btn_Goto_First_Page;
 
     private static User_Setting_Fragment Instance = new User_Setting_Fragment();
@@ -39,17 +43,14 @@ public class User_Setting_Fragment extends android.support.v4.app.Fragment {
         view = inflater.inflate(R.layout.pager_fragment_user_setting,container,false);
 
         tv_Login_Email = (TextView)view.findViewById(R.id.tv_User_Email);
-        et_Google_Circle_Size = (EditText)view.findViewById(R.id.et_Google_Circle_Size);
-        et_Google_Circle_Size.setText(Const.getCircleSize()+"");
-        et_Google_Circle_Size.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                Toast.makeText(getContext(),et_Google_Circle_Size.getText().toString(),Toast.LENGTH_SHORT).show();
-                Const.setCircleSize(Integer.parseInt(et_Google_Circle_Size.getText().toString()));
-                hideSoftKeyboard(et_Google_Circle_Size);
-                return false;
-            }
-        });
+        tv_Google_Circle_Size = (TextView)view.findViewById(R.id.tv_google_Maps_Circle);
+        tv_Realtime_Chart_dataset = (TextView)view.findViewById(R.id.tv_Realtime_Chart_rangeset);
+        tv_UDOO_board_Receive_Timeset = (TextView)view.findViewById(R.id.tv_UDOO_board_Receive_Time_Set);
+
+        tv_Google_Circle_Size.setText(Const.getCircleSize()+"");
+        tv_Realtime_Chart_dataset.setText(Integer.toString(Const.getRealtimeDatasetRange()));
+        tv_UDOO_board_Receive_Timeset.setText(Integer.toString(Const.getReceiveTimeFromUdoo()));
+
         btn_Goto_First_Page = (Button)view.findViewById(R.id.btn_go_to_first);
         btn_Goto_First_Page.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,40 +59,62 @@ public class User_Setting_Fragment extends android.support.v4.app.Fragment {
             }
         });
 
-        et_Google_Circle_Size.setOnClickListener(new View.OnClickListener() {
+        tv_Google_Circle_Size.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(view.getContext());
-
-                alert.setTitle("Google Circle Size");
-                alert.setMessage("Please, input number");
-
-                // Set an EditText view to get user input
-                final EditText input = new EditText(alert.getContext());
-                input.setMaxWidth(80);
-                input.setText(et_Google_Circle_Size.getText().toString());
-                input.setGravity(Gravity.CENTER);
-                alert.setView(input);
-
-                alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        et_Google_Circle_Size.setText(input.getText().toString());
-                        Const.setCircleSize(Integer.parseInt(et_Google_Circle_Size.getText().toString()));
-                        hideSoftKeyboard(input);
-                        // Do something with value!
-                    }
-                });
-
-                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        // Canceled.
-                    }
-                });
-                alert.show();
+                setAlertMSG(tv_Google_Circle_Size,"The size of circle in google maps", "Input data");
+                Const.setCircleSize(Integer.parseInt(tempView.getText().toString()));
             }
         });
+
+        tv_Realtime_Chart_dataset.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                setAlertMSG(tv_Realtime_Chart_dataset,"The number of Air data in chart ", "Input data");
+                Const.setRealtimeDatasetRange(Integer.parseInt(tempView.getText().toString()));
+            }
+        });
+
+        tv_UDOO_board_Receive_Timeset.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                setAlertMSG(tv_UDOO_board_Receive_Timeset,"Receive time from UDOO board.", "Input data");
+                Const.setReceiveTimeFromUdoo(Integer.parseInt(tempView.getText().toString()));
+            }
+        });
+
+
         setInfo();
         return view;
+    }
+
+    public void setAlertMSG(TextView Current_textView, String Title, String MSG){
+        tempView = Current_textView;
+        AlertDialog.Builder alert = new AlertDialog.Builder(view.getContext());
+
+        alert.setTitle(Title);
+        alert.setMessage(MSG);
+
+        // Set an EditText view to get user input
+        final EditText input = new EditText(alert.getContext());
+        input.setInputType(0x00002002);
+        input.setText(tempView.getText().toString());
+        input.setGravity(Gravity.CENTER);
+        alert.setView(input);
+
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                tempView.setText(input.getText().toString());
+                hideSoftKeyboard(input);
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
+        alert.show();
     }
 
     public void showSoftKeyboard(View view) {

@@ -28,6 +28,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import kr.ac.kmu.cs.airpollution.PagerAdapter.MyFragmentPagerAdapter;
 import kr.ac.kmu.cs.airpollution.R;
 import kr.ac.kmu.cs.airpollution.activity.MainActivity;
 import kr.ac.kmu.cs.airpollution.activity.Realtime_Chart_Activity;
@@ -82,6 +83,7 @@ public class Realtime_Fragment extends Fragment {
 
     //Button option
     private Button btn_option;
+    private Button btn_goto_last;
 
     private View view = null;
 
@@ -110,8 +112,14 @@ public class Realtime_Fragment extends Fragment {
 
             }
         });
-        // set TextView event when the TextView is tapping.
-        //setLongClickEvent();
+
+        btn_goto_last = (Button)view.findViewById(R.id.btn_go_to_last);
+        btn_goto_last.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.setPager(4);
+            }
+        });
 
         iv_hr.setOnClickListener(new View.OnClickListener() {
             @Override

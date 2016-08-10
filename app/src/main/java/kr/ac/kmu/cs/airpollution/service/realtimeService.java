@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.activity.Question_Activity;
 import kr.ac.kmu.cs.airpollution.database.airDatabaseOpenHelper;
 import kr.ac.kmu.cs.airpollution.fragment.Realtime_Fragment;
@@ -75,7 +76,7 @@ public class realtimeService extends Service {
                             intent.putExtra("DATA",temp);
                             sendBroadcast(intent);
                             Log.d("Service Test","Good1");*/
-                            Thread.sleep(4900);
+                            Thread.sleep(Const.getReceiveTimeFromUdoo()*1000 - 100);
 
                             if((Realtime_Fragment.getInstance().getView() != null) && Question_Activity.isFlag()){
                                 Realtime_Fragment.getInstance().getView().post(new Runnable() {

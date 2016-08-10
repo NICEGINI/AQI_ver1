@@ -28,6 +28,7 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 
+import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.R;
 import kr.ac.kmu.cs.airpollution.activity.Realtime_Chart_Activity;
 import kr.ac.kmu.cs.airpollution.controller.jsonController;
@@ -232,7 +233,8 @@ public class realtimeChartFragment extends Fragment implements OnChartValueSelec
         //
 
         setChart();
-        mChart.setVisibleXRangeMaximum(30);
+        mChart.setVisibleXRangeMaximum(Const.getRealtimeDatasetRange());
+
         realTimeThread = new Thread(new Runnable() {
             @Override
             public void run() {
