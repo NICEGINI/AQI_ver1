@@ -180,7 +180,8 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
                                 marker.remove();
 
                             circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
-                                    radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor("#8000e400")));
+                                    // Change setBackgroundColor's param to select color
+                                    radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor(setBackgroundColor(40))));
 
                             // 맵 위치를 이동하기
                             CameraUpdate update = CameraUpdateFactory.newLatLng(
@@ -192,7 +193,7 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
                                     .position(geo_latlng)
                                     .title(select_location)
                                     .snippet("AQI")
-                                    .icon(BitmapDescriptorFactory.defaultMarker(3));
+                                    .icon(BitmapDescriptorFactory.defaultMarker(setIconColor(140))); // need to modify
 
                             marker = mGoogleMap.addMarker(markerOptions);
                             marker.showInfoWindow();
@@ -219,11 +220,16 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
         }
     }
 
-    // method definition
-    public BitmapDescriptor getMarkerIcon(String color) {
-        float[] hsv = new float[3];
-        Color.colorToHSV(Color.parseColor(color), hsv);
-        return BitmapDescriptorFactory.defaultMarker(hsv[0]);
+    //set icon color
+    public int setIconColor(float num){
+        return  (num < 51) ? 110 : (num < 101) ? 50 : (num < 151) ? 35 : (num < 200) ? 0 :
+                (num < 301) ? 290 : (num < 500) ? 10 : 10;
+    }
+
+    // setting air color
+    public String setBackgroundColor(double num){
+        return (num < 51) ? "#8000e400" : (num < 101) ? "#80d3d327" : (num < 151) ? "#80ff7e00" : (num < 200) ? "#80ff0000" :
+                (num < 301) ? "#808f3f97" : (num < 500) ? "#807e0023" : "#807e0023";
     }
 
     //set location

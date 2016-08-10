@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
@@ -64,6 +65,7 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
     private FragmentManager fm;
     private FragmentTransaction fragmentTransaction;
     public GoogleMap mGoogleMap;
+    private Marker marker;
     private Circle circle;
     private LocationManager locationManager;
     private realtimeChartFragment.ICallback mCallback = new realtimeChartFragment.ICallback() {
@@ -131,9 +133,6 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
         //Marker seoul = mGoogleMap.addMarker(new MarkerOptions().position(SEOUL).title("Seoul"));
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE); // 로케이션 매니저 생성
 
-
-
-
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
 
         // 3G,4G,WIFI 사용시
@@ -175,10 +174,11 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
 
                         @Override
                         protected void onPostExecute(String s) {
-                            mGoogleMap.clear();
+                            if(marker != null)
+                                marker.remove();
 
                             circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
-                                    radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor("#8000e400")));
+                                    radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor(setBackgroundColor(40))));
 
                             // 맵 위치를 이동하기
                             CameraUpdate update = CameraUpdateFactory.newLatLng(
@@ -190,9 +190,11 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
                                     .position(geo_latlng)
                                     .title(select_location)
                                     .snippet("AQI")
-                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                                    .icon(BitmapDescriptorFactory.defaultMarker(setIconColor(140))); // need to modify.
 
-                            mGoogleMap.addMarker(markerOptions).showInfoWindow();
+                            marker = mGoogleMap.addMarker(markerOptions);
+                            marker.showInfoWindow();
+                            marker.setVisible(true);
                         }
 
                         @Override
@@ -210,12 +212,21 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
                         protected void onCancelled() {
                         }
                     }.execute();
-
-                    circle = mGoogleMap.addCircle(new CircleOptions().center(latLng).
-                            radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor("#8000e400")));
                 }
             });
         }
+    }
+
+    //set icon color
+    public int setIconColor(float num){
+        return  (num < 51) ? 110 : (num < 101) ? 50 : (num < 151) ? 35 : (num < 200) ? 0 :
+                (num < 301) ? 290 : (num < 500) ? 10 : 10;
+    }
+
+    // setting air color
+    public String setBackgroundColor(double num){
+        return (num < 51) ? "#8000e400" : (num < 101) ? "#80d3d327" : (num < 151) ? "#80ff7e00" : (num < 200) ? "#80ff0000" :
+                (num < 301) ? "#808f3f97" : (num < 500) ? "#807e0023" : "#807e0023";
     }
 
     private String getHtml(String Google_URL){
