@@ -76,9 +76,17 @@ public class LoginActivity extends AppCompatActivity {
                         startActivity(intent);
                 }
                     else {
-                        httpController comm = new httpController(LoginActivity.this, 0);
-                        comm.checkLogin(et_Email.getText().toString(), et_Password.getText().toString());
+                        new httpController(LoginActivity.this).checkLogin(et_Email.getText().toString(), et_Password.getText().toString());;
+
                         et_Password.setText("");
+                      //=================================================================
+                        //커넥션부분
+//                        String email = "shineleaver@gmail.com";
+//                        String devMAC = "A1:B2:C3:D4:E5:F6";
+//                        long epoch = System.currentTimeMillis()/1000;
+//                        String recTime = Long.toString(epoch);
+//                        new httpController(LoginActivity.this).reqConnect(email,recTime,devMAC);
+                        //=============================================================
                     }
                 }
             }

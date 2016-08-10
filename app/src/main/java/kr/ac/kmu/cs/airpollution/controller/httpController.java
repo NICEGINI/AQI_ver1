@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,8 +34,19 @@ import kr.ac.kmu.cs.airpollution.activity.MainActivity;
  * Created by pabel on 2016-08-09.
  */
 public class httpController extends AsyncTask<String, String, String> {
-    //params[0] = url
-    //type 0 = 로그인 , 1 = 세션키 , ...
+
+    public enum HTTP {
+        REQ_LOGIN(0), REQ_CONNECT_UDOO(1), REQ_CONNECT_HEART(2),SEND_UDOO_REAL(3), SEND_HEART_REAL(4);
+        private int value;
+        private HTTP(int value) {
+            value = value;
+        }
+        public int getValue() {
+            return value;
+        }
+    };
+    HTTP now;
+
     Context context; // 컨텍스트
     int control;
     int type;
@@ -58,12 +70,12 @@ public class httpController extends AsyncTask<String, String, String> {
         alert.setMessage(msg);
         alert.show();
     }
-    public httpController(Context context,int type){
+    public httpController(Context context){
         super();
         this.context = context;
-        this.type = type;
+
     }
-    public void setJSON(){
+    public void setJSONSetting(){
         conn.setRequestProperty("Cache-Control", "no-cache");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Accept", "application/json");
@@ -75,6 +87,7 @@ public class httpController extends AsyncTask<String, String, String> {
         // Initialize  AsyncLogin() class with email and password
         temp.put("email",email);
         temp.put("password",password);
+        now = HTTP.REQ_LOGIN;
          execute(URL_LOGIN,email,password);
     }
 //=========================================================================
@@ -94,16 +107,17 @@ public class httpController extends AsyncTask<String, String, String> {
 
     return "";
 }
-    public void reqConnect(String URL,String email,String recTime,String devMAC) {
+    public void reqConnect(String email,String recTime,String devMAC) {
         //devMAC = FF:FF:FF:FF 와 같이 콜론이 붙어있음 없애줘야됨.
         String temp[] = devMAC.split(":");
         String MAC = "x'";
         for(int i = 0; i<temp.length;i++){
             MAC =  MAC.concat(temp[i]);
         }
+        now = HTTP.REQ_CONNECT_UDOO;
         String json = makeJSON(email,recTime,MAC);
         // Initialize  AsyncLogin() class with email and password
-        execute(URL,json);
+        execute(URL_CONNECT,json);
     }
 
     //=====================================================================
@@ -132,17 +146,21 @@ public class httpController extends AsyncTask<String, String, String> {
             conn.setReadTimeout(READ_TIMEOUT);
             conn.setConnectTimeout(CONNECTION_TIMEOUT);
             conn.setRequestMethod("POST");
-
-            // setDoInput and setDoOutput method depict handling of both send and receive
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
             String query = "";
-            if(type == 0 ){
+            if(now == HTTP.REQ_LOGIN){
                 Uri.Builder builder = new Uri.Builder()
                         .appendQueryParameter("email", params[1])
                         .appendQueryParameter("password", params[2]);
                 query = builder.build().getEncodedQuery();
+            } else
+            {
+                setJSONSetting();
+                query = params[1];
             }
+            // setDoInput and setDoOutput method depict handling of both send and receive
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+
             // Append parameters to URL
 
 
@@ -209,11 +227,20 @@ public class httpController extends AsyncTask<String, String, String> {
             if(type != -1){
                 switch (type){
                     case 0:
-                        Intent intent = new Intent(context, MainActivity.class);
-                        Const.setUserEmail(temp.get("email"));
-                        Const.setUserPassword(temp.get("password"));
+                        switch (now){
+                            case REQ_LOGIN:
+                                Intent intent = new Intent(context, MainActivity.class);
+                                Const.setUserEmail(temp.get("email"));
+                                Const.setUserPassword(temp.get("password"));
 
-                        context.startActivity(intent);
+                                context.startActivity(intent);
+                                break;
+                            case REQ_CONNECT_UDOO:
+                                String connectID = parser.getString("connectionID");
+                                Toast.makeText(context,"성공적으로 받음"+connectID,Toast.LENGTH_SHORT);
+                                break;
+                        }
+
                         //성공했을때.
                         break;
                     case 1:
