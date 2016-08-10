@@ -15,9 +15,6 @@ import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.R;
 import kr.ac.kmu.cs.airpollution.activity.MainActivity;
 
-/**
- * Created by KCS on 2016-08-05.
- */
 public class User_Setting_Fragment extends android.support.v4.app.Fragment {
     private View view = null;
 

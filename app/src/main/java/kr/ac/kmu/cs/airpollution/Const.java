@@ -36,7 +36,7 @@ public class Const {
     }
 
     //Google Map
-    private static int CIRCLE_SIZE = 100;
+    private static int CIRCLE_SIZE = 250;
 
     public static boolean isUdooState() {
         return UDOO_STATE;

@@ -27,10 +27,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
@@ -58,6 +60,7 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
     private static LatLng geo_latlng;
     private String select_location;
     private GoogleMap mGoogleMap;
+    private Marker marker;
     private Circle circle;
     private LocationManager locationManager;
     private SupportMapFragment mapFragment;
@@ -155,6 +158,7 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
                 @Override
                 public void onMapClick(LatLng latLng) {
                     if (circle != null) circle.remove();
+
                     //String temp = getRegionAddress(latLng.latitude, latLng.longitude);
 
                     geo_lat = latLng.latitude;
@@ -172,7 +176,8 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
 
                         @Override
                         protected void onPostExecute(String s) {
-                            mGoogleMap.clear();
+                            if(marker != null)
+                                marker.remove();
 
                             circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
                                     radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor("#8000e400")));
@@ -187,9 +192,11 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
                                     .position(geo_latlng)
                                     .title(select_location)
                                     .snippet("AQI")
-                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                                    .icon(BitmapDescriptorFactory.defaultMarker(3));
 
-                            mGoogleMap.addMarker(markerOptions).showInfoWindow();
+                            marker = mGoogleMap.addMarker(markerOptions);
+                            marker.showInfoWindow();
+                            marker.setVisible(true);
                         }
 
                         @Override
@@ -210,6 +217,13 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
                 }
             });
         }
+    }
+
+    // method definition
+    public BitmapDescriptor getMarkerIcon(String color) {
+        float[] hsv = new float[3];
+        Color.colorToHSV(Color.parseColor(color), hsv);
+        return BitmapDescriptorFactory.defaultMarker(hsv[0]);
     }
 
     //set location

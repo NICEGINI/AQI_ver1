@@ -16,13 +16,16 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,6 +57,7 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
     private double lon; // longitude
     private double geo_lat;
     private double geo_lng;
+    private LatLng geo_latlng;
     private Location location;
 
     private Fragment chartFragment = null;
@@ -158,6 +162,7 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
 
                     geo_lat = latLng.latitude;
                     geo_lng = latLng.longitude;
+                    geo_latlng = new LatLng(geo_lat, geo_lng);
 
                     final String apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
                             + geo_lat + "," + geo_lng;
@@ -170,8 +175,24 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
 
                         @Override
                         protected void onPostExecute(String s) {
+                            mGoogleMap.clear();
 
-                            Toast.makeText(Realtime_Chart_Activity.this, select_location,Toast.LENGTH_SHORT).show();
+                            circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
+                                    radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor("#8000e400")));
+
+                            // 맵 위치를 이동하기
+                            CameraUpdate update = CameraUpdateFactory.newLatLng(
+                                    geo_latlng);
+
+                            mGoogleMap.moveCamera(update);
+
+                            MarkerOptions markerOptions = new MarkerOptions()
+                                    .position(geo_latlng)
+                                    .title(select_location)
+                                    .snippet("AQI")
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+
+                            mGoogleMap.addMarker(markerOptions).showInfoWindow();
                         }
 
                         @Override
