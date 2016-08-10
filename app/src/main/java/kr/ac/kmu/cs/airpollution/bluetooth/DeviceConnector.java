@@ -34,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import kr.ac.kmu.cs.airpollution.Const;
+import kr.ac.kmu.cs.airpollution.activity.MainActivity;
 import kr.ac.kmu.cs.airpollution.controller.httpController;
 
 
@@ -59,13 +60,7 @@ public class DeviceConnector {
     이 영역은 블루투스 영역에서 메인 액티비티의 메소드 호출을 위한 영역임
      */
     //==========================================================
-    public interface bluetoothCallback { // 인터페이스를 통해 메인 액티비티로 호출한 함수 지정
-        public void reqConnect(String msg);
-    }
-    private bluetoothCallback btCallback; // 등록할 콜백 객체
-    public void registerBluetoothCallback(bluetoothCallback bcb){
-        btCallback = bcb; // 등록시켜주는 메소드드
-    }
+
     //======================================================================
 
     // ==========================================================================
@@ -77,6 +72,7 @@ public class DeviceConnector {
         connectedDevice = btAdapter.getRemoteDevice(deviceData.getAddress());
         deviceName = (deviceData.getName() == null) ? deviceData.getAddress() : deviceData.getName();
         mState = STATE_NONE;
+
     }
     // ==========================================================================
 
@@ -209,7 +205,9 @@ public class DeviceConnector {
     }
     // ==========================================================================
 
-
+    //연결 끊기면 처리해야될것
+    //http로 디스커넥보냄
+    //udoo connect id -1설정함
     private void connectionLost() {
         // Send a failure message back to the Activity
         //Message msg = mHandler.obtainMessage(DeviceControlActivity.MESSAGE_TOAST);
@@ -312,6 +310,14 @@ public class DeviceConnector {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
+        private MainActivity.bluetoothCallback mCallback = new MainActivity.bluetoothCallback() {
+
+            @Override
+            public void reqConnect(String msg) {
+                writeData(sendControlJSON("start","request","").getBytes());
+            }
+        };
+
 
         public ConnectedThread(BluetoothSocket socket) {
             if (D) Log.d(TAG, "create ConnectedThread");
@@ -319,7 +325,7 @@ public class DeviceConnector {
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
-
+            MainActivity.registerBluetoothCallback(mCallback);
             // Get the BluetoothSocket input and output streams
             try {
                 tmpIn = socket.getInputStream();
@@ -346,6 +352,11 @@ public class DeviceConnector {
 //            writeData(temp.getBytes());
 //            Log.d(TAG,"good");
 
+            if(Const.getUdooConnectId().length() > 0 && isStart == false){
+                Log.d("UDOO START","UDOO START4142141");
+                writeData(sendControlJSON("start","request","").getBytes());
+                isStart = true;
+            }
         }
         // ==========================================================================
 
@@ -353,8 +364,9 @@ public class DeviceConnector {
          * Основной рабочий метод - ждёт входящих команд от потока
          */
         //이부분에서 처리
+        boolean isStart = false;
         public void run() {
-            boolean isStart = false;
+
             if (D) Log.i(TAG, "ConnectedThread run");
             byte[] buffer = new byte[512]; // 버퍼 단위로 읽음
             int bytes; // 읽은 데이터를 넣음
@@ -367,9 +379,17 @@ public class DeviceConnector {
                     String readed = new String(buffer, 0, bytes);
                     Log.d("bt","읽음");
                     JSONObject parser = null;
-                    if(Const.getUdooConnectId() != "" && !isStart){
-                        writeData(sendControlJSON("start","request","").getBytes());
-                    }
+
+//                    while (Const.getUdooConnectId().length() > 0){
+//                        Log.d("UDOO START","UDOO START");
+//                        writeData(sendControlJSON("start","request","").getBytes());
+//                        try {
+//                            Thread.sleep(1500);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+
                     //if(!connect){ // 아직 연결안됨.
                      //   readControlJSON(readed); // 제이슨을 읽어서 맞는 컨트롤을 함.
 

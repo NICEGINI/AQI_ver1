@@ -67,9 +67,10 @@ public class realtimeService extends Service {
                     test.put(epoch,locBuffer.getCurrentLoc());
                     locBuffer.addLocData(test);
                 }
-                Log.d("timerTask",recTime);
+                //Log.d("timerTask",recTime);
             }
         },1000,1000);
+
 
 
         if(service_Thread == null){

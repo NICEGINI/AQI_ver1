@@ -12,7 +12,17 @@ import java.util.HashMap;
  */
 public class locBuffer {
     private static locBuffer buffer = new locBuffer();
-    private static double lat,lng;
+    private static double lat;
+
+    public static double getLat() {
+        return lat;
+    }
+
+    public static double getLng() {
+        return lng;
+    }
+
+    private static double lng;
     private static LatLng currentLoc;
     private static float accuracy;
     public static locBuffer getBuffer() {

@@ -307,13 +307,14 @@ public class MainActivity extends AppCompatActivity {
     };
     //====================================================================
     //디바이스 커넥터에서 메인 액티비티의 함수를 호출할수 있게 해줍니다. 아래는 처리할 내용입니다.
-    private DeviceConnector.bluetoothCallback mCallback = new DeviceConnector.bluetoothCallback() {
 
-        @Override
-        public void reqConnect(String msg) {
-
-        }
-    };
+    public interface bluetoothCallback { // 인터페이스를 통해 메인 액티비티 -> 커넥터로
+        public void reqConnect(String msg);
+    }
+    private static bluetoothCallback btCallback; // 등록할 콜백 객체
+    public static void registerBluetoothCallback(bluetoothCallback bcb){
+        btCallback = bcb; // 등록시켜주는 메소드드
+    }
 
     //==================================================================
     /*private ServiceConnection mConnection = new ServiceConnection() {
@@ -348,7 +349,11 @@ public class MainActivity extends AppCompatActivity {
             if(isStart){
 //                {"CO":0.2,"NO2":0.0,"O3":0.0,"PM":567,"SO2":0.0,"TEMP":43,"TIME":1451612518,"Type":"RT"}
                 try {
-                    parser = new JSONObject(strData);
+                    if(locBuffer.getCurrentLoc() != null){
+                        parser = new JSONObject(strData);
+                        new httpController(MainActivity.this).sendRealtimeUdoo(Const.getUdooConnectId(),parser.toString());
+                    }
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -364,6 +369,10 @@ public class MainActivity extends AppCompatActivity {
                         long epoch = System.currentTimeMillis()/1000;
                         String recTime = Long.toString(epoch);
                         new httpController(MainActivity.this).reqConnect(Const.getUserEmail(),recTime,Const.getUdooMac());
+                        if(Const.getUdooConnectId().length() > 0){
+
+                            btCallback.reqConnect("ff");
+                        }
                     }
                     if(parser != null) Log.d("bt",control+" "+type+" "+value);
                     Log.d("bt","잘받아짐");
@@ -432,7 +441,7 @@ public class MainActivity extends AppCompatActivity {
             String emptyName = getString(R.string.empty_device_name);
             DeviceData data = new DeviceData(connectedDevice, emptyName);
             connector = new DeviceConnector(data, bluetoothHandler);
-            connector.registerBluetoothCallback(mCallback);
+            //connector.registerBluetoothCallback(mCallback);
             connector.connect();
         } catch (IllegalArgumentException e) {
             //Utils.log("setupConnector failed: " + e.getMessage());

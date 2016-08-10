@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import kr.ac.kmu.cs.airpollution.Buffer.locBuffer;
 import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.R;
 import kr.ac.kmu.cs.airpollution.activity.MainActivity;
@@ -118,6 +119,9 @@ public class httpController extends AsyncTask<String, String, String> {
 
     public void reqConnect(String email, String recTime, String devMAC) {
         //devMAC = FF:FF:FF:FF 와 같이 콜론이 붙어있음 없애줘야됨.
+        Log.d("reqConnect",devMAC);
+        Log.d("reqConnect",email);
+
         String temp[] = devMAC.split(":");
         String MAC = "x'";
         for (int i = 0; i < temp.length; i++) {
@@ -126,7 +130,10 @@ public class httpController extends AsyncTask<String, String, String> {
         now = HTTP.REQ_CONNECT_UDOO;
         String json = makeJSON(email, recTime, MAC);
         // Initialize  AsyncLogin() class with email and password
+        Log.d("reqConnect",json);
+
         execute(URL_CONNECT, json);
+        Log.d("URL_CONNECT","URL_CONNECT");
     }
 
     //=====================================================================
@@ -153,7 +160,13 @@ public class httpController extends AsyncTask<String, String, String> {
                 JSONObject parser = new JSONObject();
                 parser.put("connectionID",connectID);
                 parser.put("devType","1");
-                JSONArray jsonArray = new JSONArray(json);
+
+                JSONObject temp = new JSONObject(json);
+                temp.put("latitude", String.valueOf(locBuffer.getLat()));
+                temp.put("longtitude",String.valueOf(locBuffer.getLng()));
+                JSONArray jsonArray = new JSONArray(temp);
+
+
                 parser.put("data",jsonArray);
                 execute(URL_TRANSFER,parser.toString());
             } catch (JSONException e) {
@@ -257,6 +270,7 @@ public class httpController extends AsyncTask<String, String, String> {
 
     @Override
     protected void onPostExecute(String result) {
+        Log.d("onPostExecute",result);
         String status = "";
         int type = -1;
         try {
@@ -279,6 +293,7 @@ public class httpController extends AsyncTask<String, String, String> {
                             case REQ_CONNECT_UDOO:
                                 String connectID = parser.getString("connectionID");
                                 Const.setUdooConnectId(connectID);
+                                Log.d("Req_connect_udoo",connectID);
                                 Toast.makeText(context,"성공적으로 받음"+connectID,Toast.LENGTH_SHORT);
                                 break;
                             case SEND_UDOO_REAL:
@@ -289,10 +304,11 @@ public class httpController extends AsyncTask<String, String, String> {
                         //성공했을때.
                         break;
                     case 1:
+                        Log.d("http fail","http fail 1");
                         showMsgDialog("login fail");
-
                         break;
                     case 2:
+                        Log.d("http fail","http fail 2");
                         showMsgDialog("login fail");
 
                         break;
