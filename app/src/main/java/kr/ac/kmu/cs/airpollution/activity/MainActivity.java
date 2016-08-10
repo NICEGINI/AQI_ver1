@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
     // private TextView mConnectionState;
     //private TextView mDataField;
     private String mDeviceName = "Polar";
-    private String mDeviceAddress = "00:22:D0:8C:A0:62";
+    private String mDeviceAddress = "";
 
     private BluetoothLeService mBluetoothLeService;
 
@@ -290,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
             // Sets up UI references.
             // ((TextView) findViewById(R.id.device_address)).setText(mDeviceAddress);
 
-
+            //if(mBluetoothLeService != null) mServiceConnection = null;
             //연결 상태
             // mConnectionState = (TextView) findViewById(R.id.connection_state);
             //실시간으로 변하는 데이터 값
@@ -301,6 +301,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("ble callback", "ble callback send intent");
             Intent gattServiceIntent = new Intent(getBaseContext(), BluetoothLeService.class);
             bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+
 //            displayGattServices(mBluetoothLeService.getSupportedGattServices());
             return null;
         }

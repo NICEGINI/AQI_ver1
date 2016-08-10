@@ -37,6 +37,10 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
     private boolean isRunning = true;
     private static LineChart mChart;
     private static int Heart_rate;
+    private static int max_hr;
+    private static int min_hr;
+    private static final int INIT_HR = 60;
+    private static final int OFFSET = 5;
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.pager_fragment_heartchart,container,false);
@@ -97,8 +101,8 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
 
         YAxis leftAxis = mChart.getAxisLeft();
         leftAxis.setTextColor(Color.WHITE);
-        leftAxis.setAxisMaxValue(180f);
-        leftAxis.setAxisMinValue(0f);
+//        leftAxis.setAxisMaxValue(180f);
+//        leftAxis.setAxisMinValue(0f);
         leftAxis.setDrawGridLines(true);
 
         YAxis rightAxis = mChart.getAxisRight();
@@ -131,8 +135,12 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
 
         LineData data = new LineData(dataSets);
 
+        Heart_rate = setChartRange(val);
+
         mChart.setData(data);
         mChart.setVisibleXRangeMaximum(10);
+        mChart.getAxisLeft().setAxisMaxValue(Heart_rate);
+        mChart.getAxisLeft().setAxisMinValue(Heart_rate-10);
         //mChart.setVisibleYRangeMinimum(20f,YAxis.AxisDependency.RIGHT);
         //mChart.setVisibleYRangeMaximum(val_max,YAxis.AxisDependency.RIGHT);
         //mChart.setVisibleYRange(0,280,YAxis.AxisDependency.RIGHT);
@@ -140,6 +148,19 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
         //mChart.moveViewTo(data.getEntryCount(), mChart.getY(),YAxis.AxisDependency.RIGHT);
 
         mChart.invalidate();
+    }
+
+    public static int setChartRange(int heartrate){
+        //init_num =60, OFFSET = 5
+        return (heartrate < INIT_HR) ? INIT_HR : (heartrate < INIT_HR + OFFSET) ? INIT_HR + OFFSET :  (heartrate < INIT_HR + OFFSET*2) ? INIT_HR + OFFSET*2 :
+                (heartrate < INIT_HR + OFFSET*3) ? INIT_HR + OFFSET*3 : (heartrate < INIT_HR + OFFSET*4) ? INIT_HR + OFFSET*4 :
+                (heartrate < INIT_HR + OFFSET*5) ? INIT_HR + OFFSET*5 : (heartrate < INIT_HR + OFFSET*6) ? INIT_HR + OFFSET*6 :
+                (heartrate < INIT_HR + OFFSET*7) ? INIT_HR + OFFSET*7 :(heartrate < INIT_HR + OFFSET*8) ? INIT_HR + OFFSET*8 :
+                (heartrate < INIT_HR + OFFSET*9) ? INIT_HR + OFFSET*9 :(heartrate < INIT_HR + OFFSET*10) ? INIT_HR + OFFSET*10 :
+                (heartrate < INIT_HR + OFFSET*11) ? INIT_HR + OFFSET*11 :(heartrate < INIT_HR + OFFSET*12) ? INIT_HR + OFFSET*12 :
+                (heartrate < INIT_HR + OFFSET*13) ? INIT_HR + OFFSET*13 :(heartrate < INIT_HR + OFFSET*14) ? INIT_HR + OFFSET*14 :
+                (heartrate < INIT_HR + OFFSET*15) ? INIT_HR + OFFSET*15 :(heartrate < INIT_HR + OFFSET*16) ? INIT_HR + OFFSET*16 :
+                (heartrate < INIT_HR + OFFSET*17) ? INIT_HR + OFFSET*17 :(heartrate < INIT_HR + OFFSET*18) ? INIT_HR + OFFSET*18 : heartrate;
     }
 
     public static synchronized Heart_Rate_Chart_Fragment getInstance() {

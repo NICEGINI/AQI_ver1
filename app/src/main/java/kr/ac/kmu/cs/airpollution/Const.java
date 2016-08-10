@@ -84,4 +84,24 @@ public class Const {
 
 
 
+    //Realtime chart
+    private static int REALTIME_DATASET_RANGE = 30;
+
+    public static int getRealtimeDatasetRange(){
+        return REALTIME_DATASET_RANGE;
+    }
+
+    public static void setRealtimeDatasetRange(int realtimeDatasetRange){
+        REALTIME_DATASET_RANGE = realtimeDatasetRange;
+    }
+
+    // UDOO config
+    private static int RECEIVE_TIME_FROM_UDOO = 5;
+
+    public static int getReceiveTimeFromUdoo(){
+        return RECEIVE_TIME_FROM_UDOO;
+    }
+    public static void setReceiveTimeFromUdoo(int receiveTimeFromUdoo){
+        RECEIVE_TIME_FROM_UDOO = receiveTimeFromUdoo;
+    }
 }

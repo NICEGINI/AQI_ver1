@@ -9,7 +9,7 @@
 
     <Button
         android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_height="20dp"
         android:id="@+id/btn_go_to_first"
         android:layout_gravity="left"
         android:background="@drawable/go_to_first_page"
@@ -18,9 +18,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="340dp"
+        android:layout_height="wrap_content"
         android:id="@+id/scrollView4"
-        android:layout_weight="0.47"
         android:visibility="visible">
 
         <LinearLayout
@@ -110,16 +109,16 @@
                         android:layout_gravity="left"
                         android:layout_weight="0.2" />
 
-                    <EditText
-                        android:layout_width="90dp"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/et_Google_Circle_Size"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:id="@+id/tv_google_Maps_Circle"
+                        style="@style/Hyperlink"
                         android:layout_weight="0.8"
-                        android:numeric="decimal"
+                        android:layout_gravity="center"
                         android:gravity="center"
-                        android:singleLine="true"
-                        android:editable="false"
-                        android:enabled="true" />
+                        android:textColor="#515151" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -155,16 +154,19 @@
                         android:text="Chart Range : "
                         android:id="@+id/textView34"
                         android:textSize="25dp"
-                        android:layout_weight="0.2" />
+                        android:layout_weight="0.1" />
 
-                    <EditText
-                        android:layout_width="85dp"
+                    <TextView
+                        style="@style/Hyperlink"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/editText2"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:id="@+id/tv_Realtime_Chart_rangeset"
                         android:layout_weight="0.8"
-                        android:numeric="decimal"
+                        android:layout_gravity="center"
                         android:gravity="center"
-                        android:singleLine="true" />
+                        android:textColor="#515151" />
+
                 </LinearLayout>
             </LinearLayout>
 
@@ -200,29 +202,23 @@
                         android:text="Receive Time : "
                         android:id="@+id/textView32"
                         android:textSize="25dp"
-                        android:layout_weight="0.2" />
+                        android:layout_weight="0.05" />
 
-                    <EditText
-                        android:layout_width="85dp"
+                    <TextView
+                        style="@style/Hyperlink"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/editText3"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:id="@+id/tv_UDOO_board_Receive_Time_Set"
                         android:layout_weight="0.8"
-                        android:numeric="decimal"
+                        android:layout_gravity="center"
                         android:gravity="center"
-                        android:singleLine="true" />
+                        android:textColor="#515151" />
+
                 </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button"
-        android:text="Confirm"
-        android:layout_gravity="center_horizontal"
-        android:background="#a3a3a3"
-        android:layout_marginTop="10dp" />
 
 </LinearLayout>

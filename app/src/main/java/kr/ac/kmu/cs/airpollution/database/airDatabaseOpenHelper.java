@@ -11,6 +11,7 @@ public class airDatabaseOpenHelper extends SQLiteOpenHelper {
     public static final String AIRDATA_TABLE_NAME = "AIRDATA";
     public static final String LATLNG_TABLE_NAME = "LATLNG";
     public static final String HEARTRATE_TABLE_NAME = "HEARTRATE";
+    public static final String USER_TABLE_NAME = "USER";
 
     public airDatabaseOpenHelper(Context context) {
         super(context, "Airdata.db", null, 1);
@@ -42,10 +43,14 @@ public class airDatabaseOpenHelper extends SQLiteOpenHelper {
         String sql_create_Heart_rate = "CREATE TABLE IF NOT EXISTS " + HEARTRATE_TABLE_NAME + " (time INTEGER primary key, " +
                 "heartrate INTEGER);";
 
+        String sql_create_User_table = "CREATE TABLE IF NOT EXISTS " + USER_TABLE_NAME + " (EMAIL TEXT primary key, " +
+               "user_circlesize INTEGER, user_realtime_chart_range INTEGER, user_UDOO_Receive_Time );";
+
         try {
             db.execSQL(sql_create_air_table);
             db.execSQL(sql_create_LatLng_info);
             db.execSQL(sql_create_Heart_rate);
+            db.execSQL(sql_create_User_table);
         } catch (SQLException e) {
             Log.e("SQLite", "db is not creation");
         }
@@ -55,6 +60,7 @@ public class airDatabaseOpenHelper extends SQLiteOpenHelper {
         getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + AIRDATA_TABLE_NAME);
         getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + LATLNG_TABLE_NAME);
         getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + HEARTRATE_TABLE_NAME);
+        getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + USER_TABLE_NAME);
         createTable(getWritableDatabase());
     }
 
@@ -68,7 +74,6 @@ public class airDatabaseOpenHelper extends SQLiteOpenHelper {
         values.put("O3", o3);
         values.put("TEMP", temp);
         db.insert(AIRDATA_TABLE_NAME, null, values);
-        //db.close();
     }
 
     public void insert_heartrate_data(SQLiteDatabase db, long time, int heartrate) {
@@ -76,7 +81,6 @@ public class airDatabaseOpenHelper extends SQLiteOpenHelper {
         values.put("TIME", time);
         values.put("", heartrate);
         db.insert(HEARTRATE_TABLE_NAME, null, values);
-        //database.close();
     }
 
     public void insert_LATLNG_data(SQLiteDatabase db, long time, double LAT, double LNG) {
@@ -87,10 +91,23 @@ public class airDatabaseOpenHelper extends SQLiteOpenHelper {
         db.insert(LATLNG_TABLE_NAME, null, values);
     }
 
-    //delete after 24 Hour
+    public void insert_User_data(SQLiteDatabase db, String email ,int circlesize, int realtimerange, int UDOOboardRtime) {
+        ContentValues values = new ContentValues();
+        values.put("EMAIL", email);
+        values.put("user_circlesize", circlesize);
+        values.put("user_realtime_chart_range", realtimerange);
+        values.put("user_UDOO_Receive_Time", UDOOboardRtime);
+        db.insert(LATLNG_TABLE_NAME, null, values);
+    }
+
+    //delete row after 24 Hour
     public void delete_data(SQLiteDatabase db, long currentTime) {
         db.delete(AIRDATA_TABLE_NAME, "time" + "<" + Long.toString(currentTime) + "- 86400", null);
         db.delete(HEARTRATE_TABLE_NAME, "time" + "<" + Long.toString(currentTime) + "- 86400", null);
         db.delete(LATLNG_TABLE_NAME, "time" + "<" + Long.toString(currentTime) + "- 86400", null);
+    }
+
+    public void delete_user_data(SQLiteDatabase db, String email){
+        db.delete(USER_TABLE_NAME, "EMAIL = " + email, null);
     }
 }
