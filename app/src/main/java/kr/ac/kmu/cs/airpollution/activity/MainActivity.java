@@ -424,11 +424,14 @@ public class MainActivity extends AppCompatActivity {
 
 
             if(isStart && isCSV == false){
+                //리얼타임데이터 받는곳
 //                {"CO":0.3,"NO2":0,"O3":0,"PM":5.2,"SO2":0,"temperature":48,"timestamp":1470875712}
                 try {
                     if(locBuffer.getCurrentLoc() != null){
                          JSONObject temp = new JSONObject(strData);
-
+                        if(RFag.getView() != null){
+                            RFag.set_view(temp.toString());
+                        }
                         new httpController(MainActivity.this).sendRealtimeUdoo(Const.getUdooConnectId(),temp.toString());
                     }
 

@@ -130,24 +130,24 @@ public class realtimeService extends Service {
                             Log.d("Service Test","Good1");*/
                             Thread.sleep(4900);
 
-                            if((Realtime_Fragment.getInstance().getView() != null) && Question_Activity.isFlag()){
-                                Realtime_Fragment.getInstance().getView().post(new Runnable() {
-                                    @Override
-                                    public void run() {
-
-
-                                        temp = jsonController.CreateFakeJsonFile();
-                                        Realtime_Fragment.getInstance().set_view(temp);
+//                            if((Realtime_Fragment.getInstance().getView() != null) && Question_Activity.isFlag()){
+//                                Realtime_Fragment.getInstance().getView().post(new Runnable() {
+//                                    @Override
+//                                    public void run() {
 //
-                                        //Log.d("Service Test","Good2");
-                                        realTimeBuffer.insertData(jsonController.getAirDate(temp));
-                                    }
-                                });
-
-                            }else {
-                                while((Realtime_Fragment.getInstance().getView() == null) && !Question_Activity.isFlag()) Thread.sleep(200);
-                                //뷰가 없거나 도움말이 떠 있을때 정지합니다.
-                            }
+//
+//                                        temp = jsonController.CreateFakeJsonFile();
+//                                        Realtime_Fragment.getInstance().set_view(temp);
+//
+//                                        Log.d("Service Test","Good2");
+//                                        realTimeBuffer.insertData(jsonController.getAirDate(temp));
+//                                    }
+//                                });
+//
+//                            }else {
+//                                while((Realtime_Fragment.getInstance().getView() == null) && !Question_Activity.isFlag()) Thread.sleep(200);
+//                                //뷰가 없거나 도움말이 떠 있을때 정지합니다.
+//                            }
                             //i++;
                             // Toast.makeText(getApplicationContext(),"잘돌아감",Toast.LENGTH_SHORT).show();
                             //Log.d("Service Test","Good");
@@ -157,7 +157,7 @@ public class realtimeService extends Service {
                     }
                 }
             });
-            service_Thread.start();
+//            service_Thread.start();
             Log.d("Service Test","service Thread go...");
         }
         //Toast.makeText(this,"스레드 시작됨",Toast.LENGTH_SHORT).show();
