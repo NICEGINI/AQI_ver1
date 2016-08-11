@@ -22,6 +22,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -44,6 +45,8 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -76,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String SAVED_PENDING_REQUEST_ENABLE_BT = "PENDING_REQUEST_ENABLE_BT";
     private static final int REQUEST_CONNECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
-
 
     //current connection state
     private static String MSG_NOT_CONNECTED;
@@ -361,19 +363,75 @@ public class MainActivity extends AppCompatActivity {
     boolean isStart = false;
 
     private final Handler bluetoothHandler = new Handler() {
-
+        StringBuilder CSVBuilder = new StringBuilder();
+        boolean csvStart = false;
+        String temp;
         @Override
         public void handleMessage(Message msg) { //블루투스에서 데이터 들어오는곳
             //블루투스 핸들러 받은 데이터를 잘 처리한다.
-
+            boolean isCSV = false;
+            int i =0;
             String strData = msg.getData().getString("data");
+            if(strData.contains("*") || strData.contains("+") || strData.contains("&")){
+                isCSV = true;
+                if(csvStart == false){
+                    if(strData.contains("*")){
+                        Log.d("CSV FILE","첫 파일 접속");
+                        CSVBuilder.append(strData.substring(1));
+                        csvStart = true;
+                    }
+                }else {
+                    if (strData.contains("&")){
+                        Log.d("CSV FILE","마지막 파일접속");
+                        CSVBuilder.append(strData.substring(1));
+                        temp = CSVBuilder.toString();
 
+                        Log.d("temp",temp);
+                        // 파일안에 문자열 쓰기
+
+                        try {
+                            Log.d("file add","파일 만들기 시작");
+                            File file = new File(Environment.getExternalStorageDirectory() + "/Download/"+i+"ok.txt");
+                            FileWriter fw = new FileWriter(file, true) ;
+                            fw.write(temp);
+                            fw.flush();
+
+                            // 객체 닫기
+                            fw.close();
+                            Log.d("file add","파일 만듬");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        Log.d("ok end add file",temp.length()+"");
+                        CSVBuilder = new StringBuilder();
+                        csvStart = false; //끝
+                    }else {
+                        Log.d("CSV FILE","파일 붙이기");
+                        CSVBuilder.append(strData.substring(1));
+                        //더하는 영역임
+                    }
+                }
+
+
+                Log.d("strData","이자료는 csv임"+strData.length());
+            }else if (strData.contains("control")){
+                Log.d("strData","이자료는 제어 문임"+strData.length());
+            }
             JSONObject parser = null;
-            if(isStart){
-//                {"CO":0.2,"NO2":0.0,"O3":0.0,"PM":567,"SO2":0.0,"TEMP":43,"TIME":1451612518,"Type":"RT"}
+
+
+
+            if(isStart && isCSV == false){
+                //리얼타임데이터 받는곳
+//                {"CO":0.3,"NO2":0,"O3":0,"PM":5.2,"SO2":0,"temperature":48,"timestamp":1470875712}
                 try {
                     if(locBuffer.getCurrentLoc() != null){
                          JSONObject temp = new JSONObject(strData);
+                        if(RFag.getView() != null){
+                            RFag.set_view(temp.toString());
+                        }
                         new httpController(MainActivity.this).sendRealtimeUdoo(Const.getUdooConnectId(),temp.toString());
                     }
 
@@ -407,8 +465,9 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                btCallback.reqConnect("ff");
+
                 isStart = true;
+                isCSV = false;
             }
             Toast.makeText(getBaseContext(), strData, Toast.LENGTH_SHORT).show();
                 /*Air_Data ar=(Air_Data)msg.getData().getSerializable("data");
@@ -649,6 +708,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+
         super.onStart();
     }
 
@@ -690,6 +750,7 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(receiver); // 등록했던 리시버 해제해줌
         stopService(rService); // 리얼타임 서비스 종료해줌.
         if(ble_service_isbind) { unbindService(mServiceConnection); ble_service_isbind = false;}
+
         super.onDestroy();
 
     }

@@ -20,6 +20,8 @@ public class Const {
     private static String UDOO_MAC;
     private static String UDOO_CONNECT_ID = "";
     private static String HEART_CONNECT_ID = "";
+
+
     public static void setHeartConnectId(String heartConnectId) {
         HEART_CONNECT_ID = heartConnectId;
     }
