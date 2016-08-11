@@ -46,6 +46,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import kr.ac.kmu.cs.airpollution.Buffer.locBuffer;
 import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.R;
 
@@ -62,7 +63,7 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
     private GoogleMap mGoogleMap;
     private Marker marker;
     private Circle circle;
-    private LocationManager locationManager;
+
     private SupportMapFragment mapFragment;
     private FragmentManager fm;
     private Location location;
@@ -70,6 +71,8 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
     private double lat; // latitude
     private double lon; // longitude
     private View view = null;
+
+    private String apiURL;
 
     public static synchronized Google_Maps_Fragment getInstance() {
         return Instance;
@@ -132,24 +135,13 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
         //googleMap.setBuildingsEnabled(true);
         //googleMap.getUiSettings().setZoomControlsEnabled(true);
         //Marker seoul = mGoogleMap.addMarker(new MarkerOptions().position(SEOUL).title("Seoul"));
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE); // 로케이션 매니저 생성
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
+        if (locBuffer.getCurrentLoc() != null) {
+            lat = locBuffer.getLat();
+            lon = locBuffer.getLng();
 
-        // 3G,4G,WIFI 사용시
-
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, this);
-
-        if (locationManager != null) {
-            location = locationManager
-                    .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if (location != null) {
-                // 위도 경도 저장
-                lat = location.getLatitude();
-                lon = location.getLongitude();
-
-                position = new LatLng(lat, lon);
-            }
+            position = new LatLng(lat, lon);
+        }
             // when make the map.
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
 
@@ -157,67 +149,57 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
             mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
-                    if (circle != null) circle.remove();
-
                     //String temp = getRegionAddress(latLng.latitude, latLng.longitude);
+                    setLATLNG(latLng);
 
-                    geo_lat = latLng.latitude;
-                    geo_lng = latLng.longitude;
-                    geo_latlng = new LatLng(geo_lat, geo_lng);
-
-                    final String apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
+                    apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
                             + geo_lat + "," + geo_lng;
 
                     new AsyncTask<String, String, String>(){
                         @Override
-                        protected void onPreExecute() {
-
-                        }
-
-                        @Override
                         protected void onPostExecute(String s) {
-                            if(marker != null)
-                                marker.remove();
-
-                            circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
-                                    // Change setBackgroundColor's param to select color
-                                    radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor(setBackgroundColor(40))));
-
-                            // 맵 위치를 이동하기
-                            CameraUpdate update = CameraUpdateFactory.newLatLng(
-                                    geo_latlng);
-
-                            mGoogleMap.moveCamera(update);
-
-                            MarkerOptions markerOptions = new MarkerOptions()
-                                    .position(geo_latlng)
-                                    .title(select_location)
-                                    .snippet("AQI")
-                                    .icon(BitmapDescriptorFactory.defaultMarker(setIconColor(140))); // need to modify
-
-                            marker = mGoogleMap.addMarker(markerOptions);
-                            marker.showInfoWindow();
-                            marker.setVisible(true);
-                        }
-
-                        @Override
-                        protected void onProgressUpdate(String... values) {
-
+                            setCircleNMarker();
                         }
 
                         @Override
                         protected String doInBackground(String... strings) {
-                            getLocation(apiURL);
+                            getLocationResult(apiURL);
                             return null;
-                        }
-
-                        @Override
-                        protected void onCancelled() {
                         }
                     }.execute();
                 }
             });
         }
+
+    //set Latitude Longitude
+    public void setLATLNG(LatLng latLng){
+        geo_lat = latLng.latitude;
+        geo_lng = latLng.longitude;
+        geo_latlng = new LatLng(geo_lat, geo_lng);
+    }
+
+    //set marker and circle
+    public void setCircleNMarker(){
+        if (circle != null) circle.remove();
+        if(marker != null) marker.remove();
+
+        circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
+                radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor(setBackgroundColor(40))));
+
+        // 맵 위치를 이동하기
+        CameraUpdate update = CameraUpdateFactory.newLatLng(geo_latlng);
+
+        mGoogleMap.moveCamera(update);
+
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(geo_latlng)
+                .title(select_location)
+                .snippet("AQI")
+                .icon(BitmapDescriptorFactory.defaultMarker(setIconColor(140))); // need to modify.
+
+        marker = mGoogleMap.addMarker(markerOptions);
+        marker.showInfoWindow();
+        marker.setVisible(true);
     }
 
     //set icon color
@@ -232,13 +214,19 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
                 (num < 301) ? "#808f3f97" : (num < 500) ? "#807e0023" : "#807e0023";
     }
 
+    // setting AQI level
+    public String setCurrentAQIlevel(double num){
+        return  (num < 51) ? "Good" : (num < 101) ? "Moderrate" : (num < 151) ? "Unhealthy for sensitive groups" : (num < 200) ? "Unhealthy" :
+                (num < 301) ? "Very unhealthy" : (num < 500) ? "Hazardous" : "Hazardous";
+    }
+
     //set location
     public void setResult(String loc){
         select_location = loc;
     }
 
     //get location
-    private String getLocation(String Google_URL){
+    private String getLocationResult(String Google_URL){
         String jsonString = new String();
         String buf;
         URL url = null;
@@ -274,11 +262,4 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
         }
         return result;
     }
-
-    Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
-            Bundle bun = msg.getData();
-            String Html = bun.getString("google_HTML");
-        }
-    };
 }
