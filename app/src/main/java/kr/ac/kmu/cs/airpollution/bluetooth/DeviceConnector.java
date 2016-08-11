@@ -303,6 +303,7 @@ public class DeviceConnector {
      */
     //conneted 쓰레드를 통해 데이터를 주고 받는다.
     // ==========================================================================
+
     private class ConnectedThread extends Thread {
         private static final String TAG = "ConnectedThread";
         private static final boolean D = false;
@@ -352,11 +353,9 @@ public class DeviceConnector {
 //            writeData(temp.getBytes());
 //            Log.d(TAG,"good");
 
-            if(Const.getUdooConnectId().length() > 0 && isStart == false){
-                Log.d("UDOO START","UDOO START4142141");
-                writeData(sendControlJSON("start","request","").getBytes());
-                isStart = true;
-            }
+            //
+            Log.d("UDOO START","UDOO START4142141");
+            writeData(sendControlJSON("start","request","").getBytes());
         }
         // ==========================================================================
 
@@ -368,16 +367,49 @@ public class DeviceConnector {
         public void run() {
 
             if (D) Log.i(TAG, "ConnectedThread run");
-            byte[] buffer = new byte[512]; // 버퍼 단위로 읽음
+            byte[] buffer = new byte[1024]; // 버퍼 단위로 읽음
             int bytes; // 읽은 데이터를 넣음
             StringBuilder readMessage = new StringBuilder(); //스트링 빌더를 통해 연결해줌
+            StringBuilder all = new StringBuilder();
             boolean connect = false;
             while (true) {
                 try {
-                    // считываю входящие данные из потока и собираю в строку ответа
+                    int len = 0;
+//                            = mmInStream.available();
+//                    byte[] file = new byte[len];
+
+//                    while ((len = mmInStream.read(buffer)) > 0){
+//                            all.
+//                    }
+
+//                    while ((bytes = mmInStream.read(buffer)) != -1){
+//                        String readed2 = new String(buffer, 0, bytes);
+//                        all.append(readed2);
+//
+//                    }
                     bytes = mmInStream.read(buffer);
+                    //Log.d("bytes",bytes+"");
                     String readed = new String(buffer, 0, bytes);
-                   // Log.d("bt","읽음");
+                   //     String readed = all.toString();
+
+//  while((bytes = mmInStream.read(buffer)) > 0)
+//                    {
+//                        String temp = new String(buffer, 0, bytes);
+//                         all.append(temp);
+//
+//                    }
+                    // считываю входящие данные из потока и собираю в строку ответа
+//                    while ((bytes = mmInStream.read(buffer)) > 0){
+//                        all.append(new String(buffer, 0, bytes));
+//
+//                    }
+                   // String readed = all.toString();
+                    Log.d("readed",readed);
+                    Log.d("readed len",readed.length()+"");
+                   // all = new StringBuilder();
+                  //  bytes = mmInStream.read(buffer);
+                   // String readed =new String(buffer, 0, bytes)
+                            // Log.d("bt","읽음");
                     JSONObject parser = null;
 
 //                    while (Const.getUdooConnectId().length() > 0){
@@ -416,6 +448,7 @@ public class DeviceConnector {
                     connectionLost();
                     break;
                 }
+
             }
         }
         // ==========================================================================

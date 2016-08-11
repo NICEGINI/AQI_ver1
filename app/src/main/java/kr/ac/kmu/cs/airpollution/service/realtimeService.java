@@ -81,7 +81,7 @@ public class realtimeService extends Service {
                     temp.put(epoch,locBuffer.getCurrentLoc());
                     locBuffer.addLocData(temp);
                 }
-                if(MainActivity.isPolarOn()){
+                if(MainActivity.isPolarOn() && Const.getHeartConnectId().length() > 0){
 //                    {
 //                        "connectionID": 2,
 //                            "devType": 0,
