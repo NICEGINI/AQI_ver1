@@ -79,7 +79,7 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
 
             tv_NN.setText(String.valueOf(count_nn));
             tv_NNF.setText(String.valueOf(count_nn50));
-            tv_percent_NNF.setText(String.valueOf((Math.round(pNNFifth*100d)/100d)+"%"));
+            tv_percent_NNF.setText(String.valueOf((Math.round(pNNFifth*100d)/100d))+"%");
         }
 
         @Override
@@ -94,9 +94,9 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
         view = inflater.inflate(R.layout.pager_fragment_heartchart,container,false);
 
         MainActivity.registerNNCallback(NNCallback);
-        tv_percent_NNF = (TextView)view.findViewById(R.id.tv_pNN50);
-        tv_NNF = (TextView)view.findViewById(R.id.tv_nn50);
-        tv_NN = (TextView)view.findViewById(R.id.tv_nn);
+        tv_percent_NNF = (TextView)view.findViewById(R.id.tv_pNN_val);
+        tv_NNF = (TextView)view.findViewById(R.id.tv_NNFif_val);
+        tv_NN = (TextView)view.findViewById(R.id.tv_NN_val);
 
         mChart = (LineChart)view.findViewById(R.id.lc_heart_rate);
 
@@ -187,7 +187,7 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
         LineData data = new LineData(dataSets);
         data.setValueTextSize(10);
 
-       // Heart_rate = setChartRange(val);
+        // Heart_rate = setChartRange(val);
 
         mChart.setData(data);
         mChart.setVisibleXRangeMaximum(5);
