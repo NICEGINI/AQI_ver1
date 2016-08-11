@@ -35,11 +35,8 @@ import kr.ac.kmu.cs.airpollution.activity.MainActivity;
 public class Heart_Rate_Chart_Fragment extends Fragment {
     private static Heart_Rate_Chart_Fragment Instance = new Heart_Rate_Chart_Fragment();
     private View view;
-    private Thread Realtime_Heart_Therad;
-    private boolean isRunning = true;
     private static LineChart mChart;
 
-    private static final int INIT_HR = 60;
     private static final int OFFSET = 7;
 
     private static long epoch = 0;
@@ -51,9 +48,9 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
     private static double pNNFifth = 0;
     private static boolean isfirst = true;
 
-    private TextView tv_percent_nn50;
-    private TextView tv_nn50;
-    private TextView tv_nn;
+    private TextView tv_percent_NNF;
+    private TextView tv_NNF;
+    private TextView tv_NN;
 
     private MainActivity.sendNNCallback NNCallback = new MainActivity.sendNNCallback() {
         @Override
@@ -67,32 +64,29 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
             if(!isfirst)
             {
                 count_nn++;
-                tv_nn.setText(String.valueOf(count_nn));
                 isfirst = false;
             }
 
             else {
                 if (cur_RR - pre_RR < 50) {
                     count_nn++;
-                    tv_nn.setText(String.valueOf(count_nn));
                 } else {
                     count_nn++;
                     count_nn50++;
-
                     pNNFifth = ((double)count_nn50 / (double)count_nn) * 100;
                 }
             }
 
-            tv_nn.setText(String.valueOf(count_nn));
-            tv_nn50.setText(Integer.toString(count_nn50));
-            tv_percent_nn50.setText(Double.toString(Math.round(pNNFifth*100d)/100d)+"%");
+            tv_NN.setText(String.valueOf(count_nn));
+            tv_NNF.setText(String.valueOf(count_nn50));
+            tv_percent_NNF.setText(String.valueOf((Math.round(pNNFifth*100d)/100d)+"%"));
         }
 
         @Override
         public void setClear() {
-            tv_nn.setText("N/A");
-            tv_nn50.setText("N/A");
-            tv_percent_nn50.setText("N/A");
+            tv_NN.setText("N/A");
+            tv_NNF.setText("N/A");
+            tv_percent_NNF.setText("N/A");
         }
     };
 
@@ -100,9 +94,9 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
         view = inflater.inflate(R.layout.pager_fragment_heartchart,container,false);
 
         MainActivity.registerNNCallback(NNCallback);
-        tv_percent_nn50 = (TextView)view.findViewById(R.id.tv_pNN50);
-        tv_nn50 = (TextView)view.findViewById(R.id.tv_nn50);
-        tv_nn = (TextView)view.findViewById(R.id.tv_nn);
+        tv_percent_NNF = (TextView)view.findViewById(R.id.tv_pNN50);
+        tv_NNF = (TextView)view.findViewById(R.id.tv_nn50);
+        tv_NN = (TextView)view.findViewById(R.id.tv_nn);
 
         mChart = (LineChart)view.findViewById(R.id.lc_heart_rate);
 
@@ -165,24 +159,6 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
         return view;
     }
 
-    public void calculate_NN(){
-        previous_epoch = epoch;
-        epoch = System.currentTimeMillis();
-
-        Log.d("epoch",Long.toString((epoch - previous_epoch)));
-        if((epoch - previous_epoch) < 50) {
-            count_nn++;
-            tv_nn.setText(String.valueOf(count_nn));
-        }
-        else{
-            count_nn++;
-            count_nn50++;
-
-            tv_nn50.setText(Integer.toString(count_nn));
-            tv_percent_nn50.setText(Integer.toString(count_nn50));
-        }
-    }
-
     public static void setChart(){
         ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
 
@@ -224,19 +200,6 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
         //mChart.moveViewTo(data.getEntryCount(), mChart.getY(),YAxis.AxisDependency.RIGHT);
 
         mChart.invalidate();
-    }
-
-    public static int setChartRange(int heartrate){
-        //init_num =60, OFFSET = 5
-        return (heartrate < INIT_HR) ? INIT_HR : (heartrate < INIT_HR + OFFSET) ? INIT_HR + OFFSET :  (heartrate < INIT_HR + OFFSET*2) ? INIT_HR + OFFSET*2 :
-                (heartrate < INIT_HR + OFFSET*3) ? INIT_HR + OFFSET*3 : (heartrate < INIT_HR + OFFSET*4) ? INIT_HR + OFFSET*4 :
-                (heartrate < INIT_HR + OFFSET*5) ? INIT_HR + OFFSET*5 : (heartrate < INIT_HR + OFFSET*6) ? INIT_HR + OFFSET*6 :
-                (heartrate < INIT_HR + OFFSET*7) ? INIT_HR + OFFSET*7 :(heartrate < INIT_HR + OFFSET*8) ? INIT_HR + OFFSET*8 :
-                (heartrate < INIT_HR + OFFSET*9) ? INIT_HR + OFFSET*9 :(heartrate < INIT_HR + OFFSET*10) ? INIT_HR + OFFSET*10 :
-                (heartrate < INIT_HR + OFFSET*11) ? INIT_HR + OFFSET*11 :(heartrate < INIT_HR + OFFSET*12) ? INIT_HR + OFFSET*12 :
-                (heartrate < INIT_HR + OFFSET*13) ? INIT_HR + OFFSET*13 :(heartrate < INIT_HR + OFFSET*14) ? INIT_HR + OFFSET*14 :
-                (heartrate < INIT_HR + OFFSET*15) ? INIT_HR + OFFSET*15 :(heartrate < INIT_HR + OFFSET*16) ? INIT_HR + OFFSET*16 :
-                (heartrate < INIT_HR + OFFSET*17) ? INIT_HR + OFFSET*17 :(heartrate < INIT_HR + OFFSET*18) ? INIT_HR + OFFSET*18 : heartrate;
     }
 
     public static synchronized Heart_Rate_Chart_Fragment getInstance() {
