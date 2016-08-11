@@ -245,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("BLE", e.getMessage());
             }
             HRCallback.sendIntent(hr);
+            NNCallback.sendIntent();
             //Log.d("Receive DATA",data);
             //mDataField.setText(data);
         }
@@ -267,7 +268,11 @@ public class MainActivity extends AppCompatActivity {
     //받은 ble 정보를 realtime fragment로 전송한다.
     public interface sendHRCallback { // 인터페이스를 통해 메인 액티비티로 호출한 함수 지정
         public void sendIntent(int heartRate);
+        public void setClear();
+    }
 
+    public interface sendNNCallback { // 인터페이스를 통해 메인 액티비티로 호출한 함수 지정
+        public void sendIntent();
         public void setClear();
     }
 
@@ -275,6 +280,12 @@ public class MainActivity extends AppCompatActivity {
 
     public static void registerHRCallback(sendHRCallback HRC) {
         HRCallback = HRC; // 등록시켜주는 메소드드
+    }
+
+    public static sendNNCallback NNCallback; // 등록할 콜백 객체
+
+    public static void registerNNCallback(sendNNCallback HRC) {
+        NNCallback = HRC; // 등록시켜주는 메소드드
     }
 
 
@@ -515,6 +526,7 @@ public class MainActivity extends AppCompatActivity {
 
                     unbindService(mServiceConnection);
                     HRCallback.setClear();
+                    NNCallback.setClear();
                     Toast.makeText(getBaseContext(),"disconnect Polar..",Toast.LENGTH_SHORT).show();
 
                     sw_BLE.setChecked(false);

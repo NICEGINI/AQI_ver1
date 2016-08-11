@@ -9,4 +9,54 @@
         android:layout_height="177dp"
         android:padding="10dp"
         android:layout_margin="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NN"
+        android:id="@+id/textView36"
+        android:textSize="25dp"
+        android:layout_marginLeft="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="N/A"
+        android:id="@+id/tv_nn"
+        android:textSize="25dp"
+        android:layout_marginLeft="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NN50 Events"
+        android:id="@+id/textView15"
+        android:textSize="25dp"
+        android:layout_marginLeft="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="N/A"
+        android:id="@+id/tv_nn50"
+        android:textSize="25dp"
+        android:layout_marginLeft="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="pNN50"
+        android:id="@+id/textView37"
+        android:textSize="25dp"
+        android:singleLine="false"
+        android:layout_marginLeft="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="pNN50"
+        android:id="@+id/tv_pNN50"
+        android:textSize="25dp"
+        android:layout_marginLeft="10dp" />
+
 </LinearLayout>
