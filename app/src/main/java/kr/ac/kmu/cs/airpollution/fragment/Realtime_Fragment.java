@@ -63,6 +63,7 @@ public class Realtime_Fragment extends Fragment {
     private TextView tv_so2_val;
     private TextView tv_pm_val;
     private TextView tv_o3_val;
+    private TextView tv_temperature_val;
     private TextView tv_Current_State;
     private TextView tv_hr;
 
@@ -141,6 +142,7 @@ public class Realtime_Fragment extends Fragment {
         tv_o3_val = (TextView)view.findViewById(R.id.tv_o3_val);
         tv_Current_State = (TextView)view.findViewById(R.id.tv_Currnet_State);
         tv_hr = (TextView)view.findViewById(R.id.tv_hr);
+        tv_temperature_val = (TextView)view.findViewById(R.id.tv_temp_val);
 
         tv_Current_State.setTypeface(null, Typeface.BOLD);
 
