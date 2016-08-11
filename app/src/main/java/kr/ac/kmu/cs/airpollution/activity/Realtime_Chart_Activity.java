@@ -139,8 +139,8 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
             lon = locBuffer.getLng();
 
             position = new LatLng(lat, lon);
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
         }
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
 
         //mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(10),2000,null);
         mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {

@@ -2,10 +2,12 @@ package kr.ac.kmu.cs.airpollution.fragment;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.icu.text.DecimalFormat;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +32,8 @@ public class User_Setting_Fragment extends android.support.v4.app.Fragment {
     private TextView tv_Realtime_Chart_dataset;
     private TextView tv_UDOO_board_Receive_Timeset;
     private Button btn_Goto_First_Page;
+
+    private int resultvalue = 0;
 
     private static User_Setting_Fragment Instance = new User_Setting_Fragment();
 
@@ -62,24 +66,21 @@ public class User_Setting_Fragment extends android.support.v4.app.Fragment {
         tv_Google_Circle_Size.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setAlertMSG(tv_Google_Circle_Size,"The size of circle in google maps", "Input data");
-                Const.setCircleSize(Integer.parseInt(tempView.getText().toString()));
+                setAlertMSG(tv_Google_Circle_Size,"The size of circle in google maps", "Input data",0);
             }
         });
 
         tv_Realtime_Chart_dataset.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                setAlertMSG(tv_Realtime_Chart_dataset,"The number of Air data in chart ", "Input data");
-                Const.setRealtimeDatasetRange(Integer.parseInt(tempView.getText().toString()));
+                setAlertMSG(tv_Realtime_Chart_dataset,"The number of Air data in chart ", "Input data",1);
             }
         });
 
         tv_UDOO_board_Receive_Timeset.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                setAlertMSG(tv_UDOO_board_Receive_Timeset,"Receive time from UDOO board.", "Input data");
-                Const.setReceiveTimeFromUdoo(Integer.parseInt(tempView.getText().toString()));
+                setAlertMSG(tv_UDOO_board_Receive_Timeset,"Receive time from UDOO board.", "Input data",2);
             }
         });
 
@@ -88,7 +89,7 @@ public class User_Setting_Fragment extends android.support.v4.app.Fragment {
         return view;
     }
 
-    public void setAlertMSG(TextView Current_textView, String Title, String MSG){
+    public void setAlertMSG(TextView Current_textView, String Title, String MSG, final int sel){
         tempView = Current_textView;
         AlertDialog.Builder alert = new AlertDialog.Builder(view.getContext());
 
@@ -104,7 +105,21 @@ public class User_Setting_Fragment extends android.support.v4.app.Fragment {
 
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                tempView.setText(input.getText().toString());
+                resultvalue = Integer.parseInt(input.getText().toString());
+
+                switch (sel){
+                    case 0:
+                        Const.setCircleSize(resultvalue);
+                        break;
+                    case 1:
+                        Const.setRealtimeDatasetRange(resultvalue);
+                        break;
+                    case 2:
+                        Const.setReceiveTimeFromUdoo(resultvalue);
+                        break;
+                }
+
+                tempView.setText(String.valueOf(resultvalue));
                 hideSoftKeyboard(input);
             }
         });

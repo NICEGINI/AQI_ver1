@@ -141,10 +141,9 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
             lon = locBuffer.getLng();
 
             position = new LatLng(lat, lon);
-        }
             // when make the map.
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
-
+        }
             // Click map
             mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override

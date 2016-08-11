@@ -39,9 +39,6 @@ public class locBuffer {
         accuracy = location.getAccuracy();
     }
 
-
-
-
     private static ArrayList<HashMap<Long,LatLng>> locBuffer = new ArrayList<>();
     private static long startTime = -1;
     public LatLng getLatLng(long Time){

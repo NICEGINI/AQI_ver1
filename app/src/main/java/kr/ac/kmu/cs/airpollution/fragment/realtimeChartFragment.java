@@ -333,8 +333,10 @@ public class realtimeChartFragment extends Fragment implements OnChartValueSelec
 
             LineDataSet d = new LineDataSet(values, airdata[setNum]);
 
-            d.setLineWidth(2.5f);
+
+            d.setLineWidth(3f);
             d.setCircleRadius(4f);
+            d.setDrawCircleHole(false);
 
             d.setColor(Color.parseColor(mColors[setNum]));
             d.setVisible(isChecked(setNum));
@@ -348,9 +350,10 @@ public class realtimeChartFragment extends Fragment implements OnChartValueSelec
 //        ((LineDataSet) dataSets.get(0)).setCircleColors(ColorTemplate.VORDIPLOM_COLORS);
 
         LineData data = new LineData(dataSets);
+        data.setValueTextSize(10);
 
         mChart.setData(data);
-        mChart.setVisibleXRangeMaximum(15);
+        mChart.setVisibleXRangeMaximum(Const.getRealtimeDatasetRange());
         mChart.moveViewToX(data.getEntryCount());
         mChart.invalidate();
     }

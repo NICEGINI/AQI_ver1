@@ -13,6 +13,8 @@ public class Const {
     private static String userEmail; // login user E-mail
     private static String userPassword;
     private static int CIRCLE_SIZE = 250;
+    private static int REALTIME_DATASET_RANGE = 30;
+    private static int RECEIVE_TIME_FROM_UDOO = 5;
     private static boolean UDOO_STATE = false;
    // private static int connectID_UDOO = -1;
     private static String UDOO_MAC;
@@ -88,15 +90,7 @@ public class Const {
         UDOO_STATE = udooState;
     }
 
-
-
-
-
-
-
     //Realtime chart
-    private static int REALTIME_DATASET_RANGE = 30;
-
     public static int getRealtimeDatasetRange(){
         return REALTIME_DATASET_RANGE;
     }
@@ -106,8 +100,6 @@ public class Const {
     }
 
     // UDOO config
-    private static int RECEIVE_TIME_FROM_UDOO = 5;
-
     public static int getReceiveTimeFromUdoo(){
         return RECEIVE_TIME_FROM_UDOO;
     }
