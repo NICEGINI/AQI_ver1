@@ -31,6 +31,7 @@ import kr.ac.kmu.cs.airpollution.Buffer.locBuffer;
 import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.R;
 import kr.ac.kmu.cs.airpollution.activity.MainActivity;
+import kr.ac.kmu.cs.airpollution.service.realtimeService;
 
 /**
  * Created by pabel on 2016-08-09.
@@ -63,7 +64,7 @@ public class httpController extends AsyncTask<String, String, String> {
     public static final int READ_TIMEOUT = 15000;
     public static final String URL_LOGIN = "http://teamb-iot.calit2.net/week3b/bluebase/receive/recieveApp.php/loginAPP";
     public static final String URL_CONNECT = "http://teamb-iot.calit2.net/week3b/bluebase/receive/recieveApp.php/requestConnection";
-    public static final String URL_TRANSFER = "http://teamb-iot.calit2.net/week3b/bluebase/receive/recieveApp.php/tansferData";
+    public static final String URL_TRANSFER = "http://teamb-iot.calit2.net/week3b/bluebase/receive/recieveApp.php/transferData";
 
     public void showMsgDialog(String msg) {
         AlertDialog.Builder alert = new AlertDialog.Builder(context);
@@ -117,7 +118,7 @@ public class httpController extends AsyncTask<String, String, String> {
         return "";
     }
 
-    public void reqConnect(String email, String recTime, String devMAC) {
+    public void reqConnect(String email, String recTime, String devMAC,int type) {
         //devMAC = FF:FF:FF:FF 와 같이 콜론이 붙어있음 없애줘야됨.
         Log.d("reqConnect",devMAC);
         Log.d("reqConnect",email);
@@ -127,7 +128,16 @@ public class httpController extends AsyncTask<String, String, String> {
         for (int i = 0; i < temp.length; i++) {
             MAC = MAC.concat(temp[i]);
         }
-        now = HTTP.REQ_CONNECT_UDOO;
+        //0 = udoo , 1 = heart
+        switch (type){
+            case 0:
+                now = HTTP.REQ_CONNECT_UDOO;
+                break;
+            case 1:
+                now = HTTP.REQ_CONNECT_HEART;
+                break;
+        }
+
         String json = makeJSON(email, recTime, MAC);
         // Initialize  AsyncLogin() class with email and password
         Log.d("reqConnect",json);
@@ -154,25 +164,56 @@ public class httpController extends AsyncTask<String, String, String> {
 //    }]
 //  }
 
-        public void sendRealtimeUdoo(String connectID,String json){
-            now = HTTP.SEND_UDOO_REAL;
-            try {
-                JSONObject parser = new JSONObject();
-                parser.put("connectionID",connectID);
-                parser.put("devType","1");
+    public void sendRealtimeUdoo(String connectID,String json){
+        now = HTTP.SEND_UDOO_REAL;
+        try {
+            JSONObject parser = new JSONObject();
+            parser.put("connectionID",connectID);
+            parser.put("devType","1");
 
-                JSONObject temp = new JSONObject(json);
-                temp.put("latitude", String.valueOf(locBuffer.getLat()));
-                temp.put("longtitude",String.valueOf(locBuffer.getLng()));
-                JSONArray jsonArray = new JSONArray(temp);
+            JSONObject temp = new JSONObject(json);
+            temp.put("latitude", String.valueOf(locBuffer.getLat()));
+            temp.put("longitude",String.valueOf(locBuffer.getLng()));
+            JSONArray jsonArray = new JSONArray();
+            jsonArray.put(temp);
 
+            parser.put("data",jsonArray);
+            Log.d("udooreal","send real udoo");
+            Log.d("RealTimeData",parser.toString());
+            execute(URL_TRANSFER,parser.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    };
+//    {
+//        "connectionID": 2,
+//            "devType": 0,
+//            "data": [{
+//        "timestamp" : 1470542905,
+//                "heartrate": 100,
+//                "latitude": 54.00,
+//                "longitude":110.33
+//    },
 
-                parser.put("data",jsonArray);
-                execute(URL_TRANSFER,parser.toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        };
+    public void sendRealtimeHeart(String connectID,String json){
+        now = HTTP.SEND_HEART_REAL;
+        Log.d("ble","send REAL TIME DATA");
+
+//            JSONObject parser = new JSONObject();
+//            parser.put("connectionID",connectID);
+//            parser.put("devType","0");
+//
+//            JSONObject temp = new JSONObject(json);
+//            temp.put("latitude", String.valueOf(locBuffer.getLat()));
+//            temp.put("longtitude",String.valueOf(locBuffer.getLng()));
+//            JSONArray jsonArray = new JSONArray(temp);
+//
+//
+//            parser.put("data",jsonArray);
+        Log.d("RealTimeData",json);
+            execute(URL_TRANSFER,json);
+
+    };
 
         //==================================================================
 
@@ -208,7 +249,9 @@ public class httpController extends AsyncTask<String, String, String> {
                 query = builder.build().getEncodedQuery();
             } else
             {
-                setJSONSetting();
+                conn.setRequestProperty("Cache-Control", "no-cache");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("Accept", "application/json");
                 query = params[1];
             }
             // setDoInput and setDoOutput method depict handling of both send and receive
@@ -272,12 +315,17 @@ public class httpController extends AsyncTask<String, String, String> {
     protected void onPostExecute(String result) {
         Log.d("onPostExecute",result);
         String status = "";
+        String connectID;
         int type = -1;
         try {
-            JSONObject parser = new JSONObject(result);
-            //type , status
-            status = parser.getString("status");
-            type = parser.getInt("type");
+            JSONObject parser = null;
+            if(!result.equals("unsuccessful connect")) {
+                parser = new JSONObject(result);
+
+                //type , status
+                status = parser.getString("status");
+                type = parser.getInt("type");
+            }
             if(status == null) return;
             if(type != -1){
                 switch (type){
@@ -291,10 +339,18 @@ public class httpController extends AsyncTask<String, String, String> {
                                 context.startActivity(intent);
                                 break;
                             case REQ_CONNECT_UDOO:
-                                String connectID = parser.getString("connectionID");
+                                connectID = parser.getString("connectionID");
                                 Const.setUdooConnectId(connectID);
                                 Log.d("Req_connect_udoo",connectID);
-                                Toast.makeText(context,"성공적으로 받음"+connectID,Toast.LENGTH_SHORT);
+                                //Toast.makeText(context,"성공적으로 받음"+connectID,Toast.LENGTH_SHORT);
+                                break;
+                            case REQ_CONNECT_HEART:
+                                connectID = parser.getString("connectionID");
+                                Const.setHeartConnectId(connectID);
+                                Log.d("Req_connect_heart",connectID);
+                                realtimeService.setHeartConnect(true);
+                                break;
+                            case SEND_HEART_REAL:
                                 break;
                             case SEND_UDOO_REAL:
                                 Log.d("realtime","yes send");
@@ -305,19 +361,19 @@ public class httpController extends AsyncTask<String, String, String> {
                         break;
                     case 1:
                         Log.d("http fail","http fail 1");
-                        showMsgDialog("login fail");
+                        //showMsgDialog("login fail");
                         break;
                     case 2:
                         Log.d("http fail","http fail 2");
-                        showMsgDialog("login fail");
+                        //showMsgDialog("login fail");
 
                         break;
                     default:
-                        showMsgDialog("check your connect");
+                        //showMsgDialog("check your connect");
                         break;
 
                 }
-            } else showMsgDialog("error");
+            } else ;//showMsgDialog("error");
 
 
         } catch (JSONException e) {

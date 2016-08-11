@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.UUID;
 
 import kr.ac.kmu.cs.airpollution.Buffer.locBuffer;
+import kr.ac.kmu.cs.airpollution.Buffer.realTimeHeartBuffer;
 import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.PagerAdapter.MyFragmentPagerAdapter;
 import kr.ac.kmu.cs.airpollution.R;
@@ -101,7 +102,10 @@ public class MainActivity extends AppCompatActivity {
 
     // private final String no_bluetooth = getString(R.string.no_bt_support);
 
-    private Switch sw_BT, sw_BLE;
+    private static Switch sw_BT, sw_BLE;
+    public static boolean isPolarOn(){
+        return sw_BLE.isChecked();
+    }
     private Button btn_Question_Mark;
 
     private ImageView iv_hr;
@@ -159,10 +163,11 @@ public class MainActivity extends AppCompatActivity {
 
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                // mConnected = true;
+                //mConnected = true;
 
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 //  mConnected = false;
+                realtimeService.setHeartConnect(false);
                 sw_BLE.setChecked(false);
                 //clearUI();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
@@ -203,6 +208,10 @@ public class MainActivity extends AppCompatActivity {
                                 characteristic, true);
                     }
                     Log.d("test5", "ok no" + i);
+                    long epoch = System.currentTimeMillis()/1000;
+                    String recTime = Long.toString(epoch);
+                    new httpController(MainActivity.this).reqConnect(Const.getUserEmail(),recTime,mDeviceAddress,1);
+                    Log.d("ble","REQCONNECT HEART");
                 }
             }
         }
@@ -241,6 +250,7 @@ public class MainActivity extends AppCompatActivity {
             int hr = 0;
             try {
                 hr = Integer.parseInt(data);
+                realTimeHeartBuffer.Insert_Heart_Data(hr);
             } catch (Exception e) {
                 Log.e("BLE", e.getMessage());
             }
@@ -338,6 +348,7 @@ public class MainActivity extends AppCompatActivity {
     //=====================================================================
     //블루투스 핸들러 ㅇㅇ
     boolean isStart = false;
+
     private final Handler bluetoothHandler = new Handler() {
 
         @Override
@@ -351,8 +362,8 @@ public class MainActivity extends AppCompatActivity {
 //                {"CO":0.2,"NO2":0.0,"O3":0.0,"PM":567,"SO2":0.0,"TEMP":43,"TIME":1451612518,"Type":"RT"}
                 try {
                     if(locBuffer.getCurrentLoc() != null){
-                        parser = new JSONObject(strData);
-                        new httpController(MainActivity.this).sendRealtimeUdoo(Const.getUdooConnectId(),parser.toString());
+                         JSONObject temp = new JSONObject(strData);
+                        new httpController(MainActivity.this).sendRealtimeUdoo(Const.getUdooConnectId(),temp.toString());
                     }
 
                 } catch (JSONException e) {
@@ -369,21 +380,23 @@ public class MainActivity extends AppCompatActivity {
                     if(control.equals("connect") && type.equals("response")){
                         long epoch = System.currentTimeMillis()/1000;
                         String recTime = Long.toString(epoch);
-                        new httpController(MainActivity.this).reqConnect(Const.getUserEmail(),recTime,Const.getUdooMac());
-                        if(Const.getUdooConnectId().length() > 0){
+                        new httpController(MainActivity.this).reqConnect(Const.getUserEmail(),recTime,Const.getUdooMac(),0);
 
-                            btCallback.reqConnect("ff");
-                        }
+
+
                     }
                     if(parser != null) Log.d("bt",control+" "+type+" "+value);
                     Log.d("bt","잘받아짐");
-                    if(Const.getUdooConnectId() != "") isStart = true;
+
+
+                        isStart = true;
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
-
+                btCallback.reqConnect("ff");
                 isStart = true;
             }
             Toast.makeText(getBaseContext(), strData, Toast.LENGTH_SHORT).show();
@@ -516,7 +529,7 @@ public class MainActivity extends AppCompatActivity {
                     unbindService(mServiceConnection);
                     HRCallback.setClear();
                     Toast.makeText(getBaseContext(),"disconnect Polar..",Toast.LENGTH_SHORT).show();
-
+                    realtimeService.setHeartConnect(false);
                     sw_BLE.setChecked(false);
 
                 }
@@ -542,6 +555,7 @@ public class MainActivity extends AppCompatActivity {
                 if(!btAdapter.isEnabled()){
                     //연결 상태아님
                     RequestBlueTooth();
+                    realtimeService.setHeartConnect(false);
                     sw_BT.setChecked(false);
                 }
                 else {

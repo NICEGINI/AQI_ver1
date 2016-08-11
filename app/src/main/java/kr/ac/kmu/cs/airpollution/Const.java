@@ -17,6 +17,16 @@ public class Const {
    // private static int connectID_UDOO = -1;
     private static String UDOO_MAC;
     private static String UDOO_CONNECT_ID = "";
+    private static String HEART_CONNECT_ID = "";
+    public static void setHeartConnectId(String heartConnectId) {
+        HEART_CONNECT_ID = heartConnectId;
+    }
+
+    public static String getHeartConnectId() {
+        return HEART_CONNECT_ID;
+    }
+
+
 
     public static void setUdooConnectId(String udooConnectId) {
         UDOO_CONNECT_ID = udooConnectId;

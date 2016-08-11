@@ -377,7 +377,7 @@ public class DeviceConnector {
                     // считываю входящие данные из потока и собираю в строку ответа
                     bytes = mmInStream.read(buffer);
                     String readed = new String(buffer, 0, bytes);
-                    Log.d("bt","읽음");
+                   // Log.d("bt","읽음");
                     JSONObject parser = null;
 
 //                    while (Const.getUdooConnectId().length() > 0){

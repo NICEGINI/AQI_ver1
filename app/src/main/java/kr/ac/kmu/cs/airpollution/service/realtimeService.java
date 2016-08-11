@@ -7,7 +7,22 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import kr.ac.kmu.cs.airpollution.Buffer.locBuffer;
+import kr.ac.kmu.cs.airpollution.Buffer.realTimeHeartBuffer;
+import kr.ac.kmu.cs.airpollution.Const;
+import kr.ac.kmu.cs.airpollution.activity.MainActivity;
 import kr.ac.kmu.cs.airpollution.activity.Question_Activity;
+import kr.ac.kmu.cs.airpollution.controller.httpController;
 import kr.ac.kmu.cs.airpollution.database.airDatabaseOpenHelper;
 import kr.ac.kmu.cs.airpollution.fragment.Realtime_Fragment;
 import kr.ac.kmu.cs.airpollution.controller.jsonController;
@@ -31,8 +46,13 @@ public class realtimeService extends Service {
     private String TagSQL = "SQLite";
     private airDatabaseOpenHelper helper;
     private String temp;
+    boolean heartConnect = false;
 
-    boolean isRunningRealtimeChart = false;
+    public static void setHeartConnect(boolean heartConnect) {
+        heartConnect = heartConnect;
+    }
+
+    private static boolean  isRunningRealtimeChart = false;
 
     public realtimeService(){
         super();
@@ -48,21 +68,54 @@ public class realtimeService extends Service {
         }*/
         //Toast.makeText(getBaseContext(),"fdas",Toast.LENGTH_SHORT).show();
         flag = true; // start
-        if(loc_Thread == null){
-            loc_Thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (flag){
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
 
+        final Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(!flag) timer.cancel();
+                long epoch = System.currentTimeMillis()/1000;
+                String recTime = Long.toString(epoch);
+                HashMap<Long,LatLng> temp = new HashMap<Long, LatLng>();
+                if(locBuffer.getCurrentLoc() != null){
+                    temp.put(epoch,locBuffer.getCurrentLoc());
+                    locBuffer.addLocData(temp);
                 }
-            });
-        }
+                if(MainActivity.isPolarOn()){
+//                    {
+//                        "connectionID": 2,
+//                            "devType": 0,
+//                            "data": [{
+//                        "timestamp" : 1470542905,
+//                                "heartrate": 100,
+//                                "latitude": 54.00,
+//                                "longitude":110.33
+//                    },
+
+
+                    try {
+                        JSONObject parser = new JSONObject();
+                        parser.put("timestamp",recTime);
+                        parser.put("heartrate", realTimeHeartBuffer.getNow());
+                        if(locBuffer.getCurrentLoc() != null){
+                            parser.put("latitude",locBuffer.getLat());
+                            parser.put("longitude",locBuffer.getLng());
+                        }
+                       // String tt = parser.toString();
+                        JSONArray tempaa = new JSONArray();
+                        tempaa.put(parser);
+                        JSONObject temp2 = new JSONObject();
+                        temp2.put("connectionID", Const.getHeartConnectId());
+                        temp2.put("devType","0");
+                        temp2.put("data",tempaa);
+                        new httpController(getBaseContext()).sendRealtimeHeart(Const.getHeartConnectId(),temp2.toString());
+                        Log.d("ble","send REAL TIME DATA");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        },1000,1000);
         if(service_Thread == null){
             service_Thread = new Thread(new Runnable() {
                 @Override
