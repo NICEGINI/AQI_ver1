@@ -633,6 +633,7 @@ public class MainActivity extends AppCompatActivity {
                     //연결 상태임
                      if(sw_BT.isChecked() != false){
                          sw_BT.setChecked(false);
+                         btAdapter = BluetoothAdapter.getDefaultAdapter();
 //                         sw_BT.setChecked(true);
                          //디바이스리스트액티비티 클래스를 스타트 액티비티 포 리저트 형식으로 열어줌으로 결과를 받음
                          Intent serverIntent = new Intent(getBaseContext(), DeviceListActivity.class);
@@ -640,7 +641,7 @@ public class MainActivity extends AppCompatActivity {
                          startActivityForResult(serverIntent,REQUEST_CONNECT_DEVICE );
                    }
                     else {
-
+                         btAdapter = null;
                          sw_BT.setChecked(false);
                      }
                 }
