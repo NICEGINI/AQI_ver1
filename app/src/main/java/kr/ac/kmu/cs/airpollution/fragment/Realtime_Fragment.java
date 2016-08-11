@@ -260,6 +260,7 @@ public class Realtime_Fragment extends Fragment {
             AQI = setAQI(o3,"O3", parser);
             tv_o3_val.setText(AQI);
 
+
             iv_current_AQI.setImageResource(setEmoticon(pm));
         } catch (JSONException e) {
             e.printStackTrace();
@@ -334,6 +335,16 @@ public class Realtime_Fragment extends Fragment {
 //            e.printStackTrace();
 //        }
 //    }
+
+    // setting current temperature
+    public String setTemperature(JSONObject obj){
+        try {
+            return obj.getString("temperature");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
     // setting current state
     public String setCurrentState(double num){
       return  (num < 51) ? "Good" : (num < 101) ? "Moderrate" : (num < 151) ? "Unhealthy for sensitive groups" : (num < 200) ? "Unhealthy" :

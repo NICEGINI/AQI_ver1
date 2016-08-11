@@ -35,6 +35,9 @@ import android.util.Log;
 import java.util.List;
 import java.util.UUID;
 
+import kr.ac.kmu.cs.airpollution.Const_rr_data;
+import kr.ac.kmu.cs.airpollution.fragment.Heart_Rate_Chart_Fragment;
+
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
  * given Bluetooth LE device.
@@ -65,6 +68,10 @@ public class BluetoothLeService extends Service {
 
     public final static UUID UUID_HEART_RATE_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
+
+    public final static UUID UUID_BATTERY_LEVEL_MEASUREMENT =
+            UUID.fromString(SampleGattAttributes.BATTERY_LEVEL_UUID);
+
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -123,25 +130,80 @@ public class BluetoothLeService extends Service {
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
-
         // This is special handling for the Heart Rate Measurement profile.  Data parsing is
         // carried out as per profile specifications:
         // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
         // 하트 레이터 메져 함. 브로드캐스트 업데이트.
         if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
+            boolean rrEnabled=false;
             int flag = characteristic.getProperties();
             int format = -1;
+            int heartRate;
+            int offset=1;
+            int pnnCount=0;
+            int pnnPercentage=0;
+
             if ((flag & 0x01) != 0) {
                 format = BluetoothGattCharacteristic.FORMAT_UINT16;
                 Log.d(TAG, "Heart rate format UINT16.");
+                heartRate = characteristic.getIntValue(format, offset);
+                offset=offset+2;
             } else {
                 format = BluetoothGattCharacteristic.FORMAT_UINT8;
                 Log.d(TAG, "Heart rate format UINT8.");
+                heartRate = characteristic.getIntValue(format, offset);
+                offset=offset+1;
             }
-            final int heartRate = characteristic.getIntValue(format, 1);
+
+            //Two energy bytes
+            if ((flag & 0x80) != 0){
+                offset=offset+2;
+                //Log.w(TAG, "## energy bytes present.");
+            }
+
+            if ((flag & 0x10) != 0) {
+                rrEnabled=true;
+                //Log.w(TAG, "One or more RR-Interval values are present. offset: "+offset+" valSize: "+valSize);
+            } else {
+                rrEnabled=false;
+                //Log.w(TAG, "No RR-Interval values");
+            }
+
+            int rrX = 50;
+
+            //Parse RR value
+            //http://stackoverflow.com/questions/20334864/android-bluetooth-le-how-to-get-rr-interval
+            //http://stackoverflow.com/questions/17422218/bluetooth-low-energy-how-to-parse-r-r-interval-value
+            int [] rrValue = new int[3]; //in 1/1024 seconds
+            //if(rrEnabled && (offset==(valSize-3))){
+            int rr_count=0;
+            if(rrEnabled){
+                rr_count = ((characteristic.getValue()).length - offset) / 2;
+                for (int i = 0; i < rr_count; i++){
+                    rrValue[i] = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, offset);
+                    offset += 2;
+
+                    Const_rr_data.total_HR++;
+                    //Log.w(TAG, "*** rrValue: "+rrValue+" 1024: "+(1000*rrValue)/1024+" rrX: "+rrX);
+
+                    rrValue[i]=(rrValue[i]*1000)/1024;	//ms
+                    if(Math.abs(Const_rr_data.pre_RR - rrValue[i])>rrX){
+                        Const_rr_data.count_nnF++;
+                        //Log.e(TAG, "*** rrValue: "+rrValue+" totalpNNx: "+bioHarnessSessionData.totalpNNx+" totalNN: "+bioHarnessSessionData.totalNN+" pNNvalue: "+pnnValue+" rrX: "+rrX+" rr_count: "+rr_count);
+                        //if(beatPeriod>0){
+                        //	bioHarnessSessionData.updateBeat(beatPeriod, new Integer(1));
+                        //}
+                    }
+                    pnnCount = Const_rr_data.count_nnF;
+                    pnnPercentage = (int)((100*Const_rr_data.count_nnF)/Const_rr_data.total_HR);
+                    Const_rr_data.pre_RR = rrValue[i];
+                }
+            }
+
             Log.d(TAG, String.format("Received heart rate: %d", heartRate));
             //인텐트에 하트레이트 밸류값 집어 넣어서 보내줌 ㅇㅇ
-            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
+            //intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
+            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate)+","+String.valueOf(pnnCount)+","+String.valueOf(pnnPercentage));
         } else {
             // For all other profiles, writes the data formatted in HEX.
             final byte[] data = characteristic.getValue();

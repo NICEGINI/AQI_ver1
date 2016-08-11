@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,13 +18,10 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
-import org.json.JSONException;
-
-import java.lang.ref.Reference;
 import java.util.ArrayList;
 
-import kr.ac.kmu.cs.airpollution.Buffer.realTimeBuffer;
 import kr.ac.kmu.cs.airpollution.Buffer.realTimeHeartBuffer;
+import kr.ac.kmu.cs.airpollution.Const_rr_data;
 import kr.ac.kmu.cs.airpollution.R;
 import kr.ac.kmu.cs.airpollution.activity.MainActivity;
 
@@ -39,47 +35,16 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
 
     private static final int OFFSET = 7;
 
-    private static long epoch = 0;
-    private static long previous_epoch;
-    private static int count_nn = 1;
-    private static int count_nn50 = 0;
-    private static long pre_RR = 0;
-    private static long cur_RR = 0;
-    private static double pNNFifth = 0;
-    private static boolean isfirst = true;
-
     private TextView tv_percent_NNF;
     private TextView tv_NNF;
     private TextView tv_NN;
 
     private MainActivity.sendNNCallback NNCallback = new MainActivity.sendNNCallback() {
         @Override
-        public void sendIntent() {
-            previous_epoch = epoch;
-            epoch = System.currentTimeMillis();
-
-            //Log.d("epoch",Long.toString((epoch - previous_epoch)));
-            pre_RR = cur_RR;
-            cur_RR = epoch - previous_epoch;
-            if(!isfirst)
-            {
-                count_nn++;
-                isfirst = false;
-            }
-
-            else {
-                if (cur_RR - pre_RR < 50) {
-                    count_nn++;
-                } else {
-                    count_nn++;
-                    count_nn50++;
-                    pNNFifth = ((double)count_nn50 / (double)count_nn) * 100;
-                }
-            }
-
-            tv_NN.setText(String.valueOf(count_nn));
-            tv_NNF.setText(String.valueOf(count_nn50));
-            tv_percent_NNF.setText(String.valueOf((Math.round(pNNFifth*100d)/100d))+"%");
+        public void sendIntent(int count_nn, int pnnpercent) {
+            tv_NN.setText(String.valueOf(Const_rr_data.total_HR));
+            tv_NNF.setText(String.valueOf(count_nn));
+            tv_percent_NNF.setText(String.valueOf(pnnpercent)+"%");
         }
 
         @Override
