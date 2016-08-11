@@ -38,6 +38,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import kr.ac.kmu.cs.airpollution.Buffer.locBuffer;
 import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.R;
 import kr.ac.kmu.cs.airpollution.fragment.realtimeChartFragment;
@@ -125,72 +126,45 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
             return;
         }
         mGoogleMap.setMyLocationEnabled(true);
-        if(position != null) mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position,15));
+        //if(position != null) mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position,15));
 
         //googleMap.setTrafficEnabled(true);
         //googleMap.setIndoorEnabled(true);
         //googleMap.setBuildingsEnabled(true);
         //googleMap.getUiSettings().setZoomControlsEnabled(true);
         //Marker seoul = mGoogleMap.addMarker(new MarkerOptions().position(SEOUL).title("Seoul"));
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE); // 로케이션 매니저 생성
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
+        if (locBuffer.getCurrentLoc() != null) {
+            lat = locBuffer.getLat();
+            lon = locBuffer.getLng();
 
-        // 3G,4G,WIFI 사용시
-
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, this);
-
-        //addition part.
-        if (locationManager != null) {
-            location = locationManager
-                    .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if (location != null) {
-                // 위도 경도 저장
-                lat = location.getLatitude();
-                lon = location.getLongitude();
-
-                position = new LatLng(lat, lon);
-            }
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
-
-            //mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(10),2000,null);
-            mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                @Override
-                public void onMapClick(LatLng latLng) {
-                    setLATLNG(latLng);
-
-                    apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
-                            + geo_lat + "," + geo_lng;
-
-                    new AsyncTask<String, String, String>(){
-//                        @Override
-//                        protected void onPreExecute() {
-//
-//                        }
-
-                        @Override
-                        protected void onPostExecute(String s) {
-                            setCircleNMarker();
-                        }
-//
-//                        @Override
-//                        protected void onProgressUpdate(String... values) {
-//
-//                        }
-
-                        @Override
-                        protected String doInBackground(String... strings) {
-                            getLocationResult(apiURL);
-                            return null;
-                        }
-
-//                        @Override
-//                        protected void onCancelled() {
-//                        }
-                    }.execute();
-                }
-            });
+            position = new LatLng(lat, lon);
         }
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+
+        //mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(10),2000,null);
+        mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                setLATLNG(latLng);
+
+                apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
+                        + geo_lat + "," + geo_lng;
+
+                new AsyncTask<String, String, String>(){
+                    @Override
+                    protected void onPostExecute(String s) {
+                        setCircleNMarker();
+                    }
+
+                    @Override
+                    protected String doInBackground(String... strings) {
+                        getLocationResult(apiURL);
+                        return null;
+                    }
+                }.execute();
+            }
+        });
     }
 
     //set Latitude Longitude
