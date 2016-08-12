@@ -47,7 +47,7 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
             tv_bat.post(new Runnable() {
                 @Override
                 public void run() {
-                    tv_bat.setText(String.valueOf(Const.getBattery()));
+                    tv_bat.setText(String.valueOf(Const.getBattery())+" %");
                 }
             });
            //
