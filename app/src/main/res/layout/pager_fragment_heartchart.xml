@@ -6,7 +6,7 @@
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/lc_heart_rate"
         android:layout_width="match_parent"
-        android:layout_height="177dp"
+        android:layout_height="165dp"
         android:padding="10dp"
         android:layout_margin="10dp" />
 
@@ -32,7 +32,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
+                android:textSize="20sp"
                 android:text="BAT"
                 android:id="@+id/textView35"
                 android:layout_gravity="center"
@@ -45,6 +45,44 @@
                 android:text="N/A"
                 android:id="@+id/tv_bat"
                 android:layout_column="1" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="10dp"
+            android:background="#ececed" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:text="pNN50"
+                android:id="@+id/tv_pNN"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="0" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:padding="10dp"
+            android:background="@drawable/boarder" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="30dp"
+                android:text="N/A"
+                android:id="@+id/tv_pNN_val"
+                android:layout_gravity="center_horizontal"
+                android:layout_column="0" />
+
         </TableRow>
 
         <TableRow
@@ -58,7 +96,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:text="NN"
                 android:id="@+id/tv_NN"
                 android:layout_gravity="center_horizontal"
@@ -67,7 +105,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:text="NN50"
                 android:id="@+id/tv_NNFif"
                 android:layout_gravity="center_horizontal"
@@ -86,7 +124,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:textSize="35dp"
+                android:textSize="30dp"
                 android:text="N/A"
                 android:id="@+id/tv_NN_val"
                 android:layout_column="0"
@@ -95,7 +133,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:textSize="35dp"
+                android:textSize="30dp"
                 android:text="N/A"
                 android:id="@+id/tv_NNFif_val"
                 android:layout_gravity="center_horizontal"
@@ -103,42 +141,6 @@
 
         </TableRow>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="10dp"
-            android:background="#ececed" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:text="pNN50"
-                android:id="@+id/tv_pNN"
-                android:layout_gravity="center_horizontal"
-                android:layout_column="0" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:padding="10dp"
-            android:background="@drawable/boarder" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textSize="35dp"
-                android:text="N/A"
-                android:id="@+id/tv_pNN_val"
-                android:layout_gravity="center_horizontal"
-                android:layout_column="0" />
-
-        </TableRow>
     </TableLayout>
 
 </LinearLayout>
