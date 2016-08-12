@@ -59,7 +59,7 @@
             android:layout_height="70dp"
             android:id="@+id/iv_hr"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/heart_frame_fullred"
+            android:src="@drawable/large_heart"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
             android:layout_marginStart="123dp" />

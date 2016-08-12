@@ -105,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
     // private final String no_bluetooth = getString(R.string.no_bt_support);
 
     private static Switch sw_BT, sw_BLE;
+    public static void setCheck(boolean flag){
+        sw_BT.setChecked(flag);
+    }
     public static boolean isPolarOn(){
         return sw_BLE.isChecked();
     }
@@ -321,8 +324,8 @@ public class MainActivity extends AppCompatActivity {
             Log.d("ble callback", "ble callback send intent");
             // Sets up UI references.
             // ((TextView) findViewById(R.id.device_address)).setText(mDeviceAddress);
-
-            //if(mBluetoothLeService != null) mServiceConnection = null;
+             //mBluetoothLeService.connect(mDeviceAddress);
+            if( mBluetoothLeService != null)  mBluetoothLeService.connect(mDeviceAddress);
             //연결 상태
             // mConnectionState = (TextView) findViewById(R.id.connection_state);
             //실시간으로 변하는 데이터 값
@@ -349,6 +352,23 @@ public class MainActivity extends AppCompatActivity {
     public static void registerBluetoothCallback(bluetoothCallback bcb){
         btCallback = bcb; // 등록시켜주는 메소드드
     }
+    //===========================================================================
+    private DeviceConnector.BTCallback mCallback = new DeviceConnector.BTCallback() {
+        @Override
+        public void changeBTSwitch(final boolean flag) {
+            sw_BT.post(new Runnable() {
+                @Override
+                public void run() {
+                   sw_BT.setChecked(flag);
+//                    if(flag == true){
+//                        Toast.makeText(MainActivity.this,"connect UDOO...",Toast.LENGTH_SHORT).show();
+//                    }else {
+//                        Toast.makeText(MainActivity.this,"disconnect UDOO...",Toast.LENGTH_SHORT).show();
+//                    }
+                }
+            });
+        }
+    };
 
     //==================================================================
     /*private ServiceConnection mConnection = new ServiceConnection() {
@@ -368,32 +388,49 @@ public class MainActivity extends AppCompatActivity {
             // change UI
         }
     };*/
+    //===================================================================
+    public interface ConnectedBTCallback { // 인터페이스를 통해 메인 액티비티 -> 커넥터로
+        public void controlWriteData(String msg);
+        public void sendStart();
+    }
+    private static ConnectedBTCallback CBTC; // 등록할 콜백 객체
+    public static void registerConnectedBTCallbackCallback(ConnectedBTCallback bcb){
+        CBTC = bcb; // 등록시켜주는 메소드드
+    }
     //=====================================================================
     //블루투스 핸들러 ㅇㅇ
     boolean isStart = false;
-
+    int i =0;
     private final Handler bluetoothHandler = new Handler() {
         StringBuilder CSVBuilder = new StringBuilder();
         boolean csvStart = false;
         String temp;
+
         @Override
         public void handleMessage(Message msg) { //블루투스에서 데이터 들어오는곳
             //블루투스 핸들러 받은 데이터를 잘 처리한다.
             boolean isCSV = false;
-            int i =0;
+
+            JSONObject parser = null;
             String strData = msg.getData().getString("data");
-            if(strData.contains("*") || strData.contains("+") || strData.contains("&")){
+            Log.d("UDOO DATA",strData);
+
+            if(strData.equals("connectionLost")){
+                stopConnection();
+                return; // 끝.
+            }
+            if(strData.contains("*") || strData.contains("&")){
                 isCSV = true;
                 if(csvStart == false){
                     if(strData.contains("*")){
                         Log.d("CSV FILE","첫 파일 접속");
-                        CSVBuilder.append(strData.substring(1));
+                        CSVBuilder.append(strData.substring(1,strData.length()-1));
                         csvStart = true;
                     }
                 }else {
                     if (strData.contains("&")){
                         Log.d("CSV FILE","마지막 파일접속");
-                        CSVBuilder.append(strData.substring(1));
+                        CSVBuilder.append(strData.substring(1,strData.length()-1));
                         temp = CSVBuilder.toString();
 
                         Log.d("temp",temp);
@@ -401,6 +438,7 @@ public class MainActivity extends AppCompatActivity {
 
                         try {
                             Log.d("file add","파일 만들기 시작");
+
                             File file = new File(Environment.getExternalStorageDirectory() + "/Download/"+i+"ok.txt");
                             FileWriter fw = new FileWriter(file, true) ;
                             fw.write(temp);
@@ -408,6 +446,9 @@ public class MainActivity extends AppCompatActivity {
 
                             // 객체 닫기
                             fw.close();
+                            i++;
+                            Log.d("file add i",i+"");
+
                             Log.d("file add","파일 만듬");
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -419,21 +460,44 @@ public class MainActivity extends AppCompatActivity {
                         csvStart = false; //끝
                     }else {
                         Log.d("CSV FILE","파일 붙이기");
-                        CSVBuilder.append(strData.substring(1));
+                        CSVBuilder.append(strData.substring(0,strData.length()-1));
                         //더하는 영역임
                     }
                 }
-
-
                 Log.d("strData","이자료는 csv임"+strData.length());
             }else if (strData.contains("control")){
                 Log.d("strData","이자료는 제어 문임"+strData.length());
+                try {
+                    parser = new JSONObject(strData);
+                    String control = parser.getString("control");
+                    String type = parser.getString("type");
+                    String value = parser.getString("value");
+                    if(control.equals("connect") && type.equals("response")){
+                        long epoch = System.currentTimeMillis()/1000;
+                        String recTime = Long.toString(epoch);
+                        Log.d("reqConnect","reqConnect UDOO");
+                        new httpController(MainActivity.this).reqConnect(Const.getUserEmail(),recTime,Const.getUdooMac(),0);
+                        CBTC.sendStart();
+                        isStart = true;
+
+
+                    }
+                    if(parser != null) Log.d("bt",control+" "+type+" "+value);
+                    Log.d("bt","잘받아짐");
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                isStart = true;
+                return; // 제어문은 그냥 리턴한다.
             }
-            JSONObject parser = null;
+
+
 
 
 
             if(isStart && isCSV == false){
+                Log.d("dddd",strData);
                 //리얼타임데이터 받는곳
 //                {"CO":0.3,"NO2":0,"O3":0,"PM":5.2,"SO2":0,"temperature":48,"timestamp":1470875712}
                 try {
@@ -449,37 +513,8 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            if(!isStart){
-                Log.d("bt","접근됨");
-                try {
-                    parser = new JSONObject(strData);
-                    String control = parser.getString("control");
-                    String type = parser.getString("type");
-                    String value = parser.getString("value");
-                    if(control.equals("connect") && type.equals("response")){
-                        long epoch = System.currentTimeMillis()/1000;
-                        String recTime = Long.toString(epoch);
-                        new httpController(MainActivity.this).reqConnect(Const.getUserEmail(),recTime,Const.getUdooMac(),0);
 
-
-
-                    }
-                    if(parser != null) Log.d("bt",control+" "+type+" "+value);
-                    Log.d("bt","잘받아짐");
-
-
-                        isStart = true;
-
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-
-                isStart = true;
-                isCSV = false;
-            }
-            Toast.makeText(getBaseContext(), strData, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getBaseContext(), strData, Toast.LENGTH_SHORT).show();
                 /*Air_Data ar=(Air_Data)msg.getData().getSerializable("data");
             String vv=String.valueOf(ar.co)+","+String.valueOf(ar.co2)+","+String.valueOf(ar.no2)+","
                     +String.valueOf(ar.o3)+","+String.valueOf(ar.so2);
@@ -527,7 +562,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupConnector(BluetoothDevice connectedDevice) {
-        //stopConnection();
+        stopConnection();
         //블루투스와 연결하는 메소드
         // 디바이스커넥터 클래스인 커넥터에 디바이스데이터와 핸들러를 넣어줌으로 처리함
 
@@ -564,7 +599,25 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+    private void stopConnection() {
+        //stopconnection 요청
 
+        if (connector != null) {
+            connector.stop();
+            connector = null;
+            //textViewUDOOName.setText(getSharedPreferences("MAC",0).getString("UDOONAME",""));
+
+            //DeviceListActivity.macaddress="NOT CONNECTED";
+            //imageViewUdoo.setImageResource(R.drawable.udoo0);
+
+
+        }
+        else if(connector==null)
+        {
+            //textViewUDOOName.setText("UDOO Board");
+            //Toast.makeText(this,"have not connection",Toast.LENGTH_SHORT).show();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -594,6 +647,8 @@ public class MainActivity extends AppCompatActivity {
         btn_Question_Mark = (Button)this.findViewById(R.id.btn_Question_Mark);
         iv_hr = (ImageView)this.findViewById(R.id.iv_hr);
         DeviceScanActivity.registerBluetoothCallback(bleCallback);
+        DeviceConnector.registerBluetoothCallback(mCallback);
+
         sw_BLE.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -635,25 +690,34 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 if(!btAdapter.isEnabled()){
-                    //연결 상태아님
+                    ;
+                    //블루투스 안켜진 상태임
                     RequestBlueTooth();
                     realtimeService.setHeartConnect(false);
                     sw_BT.setChecked(false);
                 }
                 else {
-                    //연결 상태임
+                    //블루투스 켜진 상태임.
+
+                    //체크 안된 상태
                      if(sw_BT.isChecked() != false){
                          sw_BT.setChecked(false);
-                         btAdapter = BluetoothAdapter.getDefaultAdapter();
+//
+                         if(btAdapter == null){
+                             Log.d("btAdapter","null");
+                             btAdapter = BluetoothAdapter.getDefaultAdapter();
+                         }
 //                         sw_BT.setChecked(true);
                          //디바이스리스트액티비티 클래스를 스타트 액티비티 포 리저트 형식으로 열어줌으로 결과를 받음
                          Intent serverIntent = new Intent(getBaseContext(), DeviceListActivity.class);
                          //Fragment fr=;
                          startActivityForResult(serverIntent,REQUEST_CONNECT_DEVICE );
+
                    }
-                    else {
-                         btAdapter = null;
+                    else { // 체크된 상태
                          sw_BT.setChecked(false);
+                        stopConnection();
+
                      }
                 }
             }
