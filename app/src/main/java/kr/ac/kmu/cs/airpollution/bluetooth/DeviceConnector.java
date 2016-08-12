@@ -60,7 +60,13 @@ public class DeviceConnector {
     이 영역은 블루투스 영역에서 메인 액티비티의 메소드 호출을 위한 영역임
      */
     //==========================================================
-
+    public interface BTCallback { // 인터페이스를 통해 메인 액티비티 -> 커넥터로
+        public void changeBTSwitch(boolean flag);
+    }
+    private static BTCallback btC; // 등록할 콜백 객체
+    public static void registerBluetoothCallback(BTCallback bcb){
+        btC = bcb; // 등록시켜주는 메소드드
+    }
     //======================================================================
 
     // ==========================================================================
@@ -73,13 +79,12 @@ public class DeviceConnector {
         deviceName = (deviceData.getName() == null) ? deviceData.getAddress() : deviceData.getName();
         mState = STATE_NONE;
 
+
     }
     // ==========================================================================
 
 
-    /**
-     * Запрос на соединение с устойством
-     */
+
     public synchronized void connect() {
         if (D) Log.d(TAG, "connect to: " + connectedDevice);
 
@@ -104,9 +109,7 @@ public class DeviceConnector {
     }
     // ==========================================================================
 
-    /**
-     * Завершение соединения
-     */
+
     public synchronized void stop() {
         if (D) Log.d(TAG, "stop");
 
@@ -127,22 +130,26 @@ public class DeviceConnector {
     // ==========================================================================
 
 
-    /**
-     * Установка внутреннего состояния устройства
-     *
-     * @param state - состояние
-     */
+
     private synchronized void setState(int state) {
         if (D) Log.d(TAG, "setState() " + mState + " -> " + state);
         mState = state;
+        switch (mState){
+            case STATE_CONNECTED:
+
+               btC.changeBTSwitch(true);
+                break;
+            case STATE_NONE:
+                btC.changeBTSwitch(false);
+                break;
+
+        }
         //안씀 mHandler.obtainMessage(DeviceControlActivity.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
     // ==========================================================================
 
 
-    /**
-     * Получение состояния устройства
-     */
+
     public synchronized int getState() {
         return mState;
     }
@@ -210,18 +217,23 @@ public class DeviceConnector {
     //udoo connect id -1설정함
     private void connectionLost() {
         // Send a failure message back to the Activity
-        //Message msg = mHandler.obtainMessage(DeviceControlActivity.MESSAGE_TOAST);
+        Message msg = new Message();
         Bundle bundle = new Bundle();
-        //msg.setData(bundle);
-        //mHandler.sendMessage(msg);
+        Log.d("connectionLost","커넥션 끊김");
+        bundle.putString("data","connectionLost");
+        msg.setData(bundle);
+        mHandler.sendMessage(msg);
         setState(STATE_NONE);
+//        Message msg = new Message();
+//        Bundle bundle = new Bundle();
+//        bundle.putString("data",readed);
+//        msg.setData(bundle);
+//        mHandler.sendMessage(msg);
     }
     // ==========================================================================
 
 
-    /**
-     * Класс потока для соединения с BT-устройством
-     */
+
     // ==========================================================================
     private class ConnectThread extends Thread {
         private static final String TAG = "ConnectThread";
@@ -237,10 +249,7 @@ public class DeviceConnector {
         }
         // ==========================================================================
 
-        /**
-         * Основной рабочий метод для соединения с устройством.
-         * При успешном соединении передаёт управление другому потоку
-         */
+
         public void run() {
             if (D) Log.d(TAG, "ConnectThread run");
             btAdapter.cancelDiscovery();
@@ -277,9 +286,6 @@ public class DeviceConnector {
         // ==========================================================================
 
 
-        /**
-         * Отмена соединения
-         */
         public void cancel() {
             if (D) Log.d(TAG, "ConnectThread cancel");
 
@@ -298,13 +304,23 @@ public class DeviceConnector {
     // ==========================================================================
 
 
-    /**
-     * Класс потока для обмена данными с BT-устройством
-     */
     //conneted 쓰레드를 통해 데이터를 주고 받는다.
     // ==========================================================================
 
     private class ConnectedThread extends Thread {
+        MainActivity.ConnectedBTCallback ICallback = new MainActivity.ConnectedBTCallback() {
+
+            @Override
+            public void controlWriteData(String msg) {
+                writeData(msg.getBytes());
+
+            }
+
+            @Override
+            public void sendStart() {
+                writeData(sendControlJSON("start","request","").getBytes());
+            }
+        };
         private static final String TAG = "ConnectedThread";
         private static final boolean D = false;
 
@@ -326,6 +342,7 @@ public class DeviceConnector {
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
+            MainActivity.registerConnectedBTCallbackCallback(ICallback);
             MainActivity.registerBluetoothCallback(mCallback);
             // Get the BluetoothSocket input and output streams
             try {
@@ -355,13 +372,11 @@ public class DeviceConnector {
 
             //
             Log.d("UDOO START","UDOO START4142141");
-            writeData(sendControlJSON("start","request","").getBytes());
+
         }
         // ==========================================================================
 
-        /**
-         * Основной рабочий метод - ждёт входящих команд от потока
-         */
+
         //이부분에서 처리
         boolean isStart = false;
         public void run() {
@@ -369,64 +384,18 @@ public class DeviceConnector {
             if (D) Log.i(TAG, "ConnectedThread run");
             byte[] buffer = new byte[1024]; // 버퍼 단위로 읽음
             int bytes; // 읽은 데이터를 넣음
-            StringBuilder readMessage = new StringBuilder(); //스트링 빌더를 통해 연결해줌
-            StringBuilder all = new StringBuilder();
+            //StringBuilder readMessage = new StringBuilder(); //스트링 빌더를 통해 연결해줌
+         //   StringBuilder all = new StringBuilder();
             boolean connect = false;
             while (true) {
                 try {
-                    int len = 0;
-//                            = mmInStream.available();
-//                    byte[] file = new byte[len];
 
-//                    while ((len = mmInStream.read(buffer)) > 0){
-//                            all.
-//                    }
-
-//                    while ((bytes = mmInStream.read(buffer)) != -1){
-//                        String readed2 = new String(buffer, 0, bytes);
-//                        all.append(readed2);
-//
-//                    }
                     bytes = mmInStream.read(buffer);
                     //Log.d("bytes",bytes+"");
                     String readed = new String(buffer, 0, bytes);
                    //     String readed = all.toString();
 
-//  while((bytes = mmInStream.read(buffer)) > 0)
-//                    {
-//                        String temp = new String(buffer, 0, bytes);
-//                         all.append(temp);
-//
-//                    }
-                    // считываю входящие данные из потока и собираю в строку ответа
-//                    while ((bytes = mmInStream.read(buffer)) > 0){
-//                        all.append(new String(buffer, 0, bytes));
-//
-//                    }
-                   // String readed = all.toString();
-                    Log.d("readed",readed);
-                    Log.d("readed len",readed.length()+"");
-                   // all = new StringBuilder();
-                  //  bytes = mmInStream.read(buffer);
-                   // String readed =new String(buffer, 0, bytes)
-                            // Log.d("bt","읽음");
-                    JSONObject parser = null;
-
-//                    while (Const.getUdooConnectId().length() > 0){
-//                        Log.d("UDOO START","UDOO START");
-//                        writeData(sendControlJSON("start","request","").getBytes());
-//                        try {
-//                            Thread.sleep(1500);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-
-                    //if(!connect){ // 아직 연결안됨.
-                     //   readControlJSON(readed); // 제이슨을 읽어서 맞는 컨트롤을 함.
-
-                    //}
-                    Log.d("DeviceConnector",readed);
+                    Log.d("DeviceConnector",readed.length()+"");
                     //Intent intent = new Intent("bluetooth");
                     //intent.putExtra("data",readed);
                     Message msg = new Message();
@@ -435,13 +404,13 @@ public class DeviceConnector {
                     msg.setData(bundle);
                     mHandler.sendMessage(msg);
                     //블루투스 핸들러로 보내줌.
-                   readMessage.append(readed);
+                 //  readMessage.append(readed);
 
                     // маркер конца команды - вернуть ответ в главный поток
-                    if (readed.contains("\n")) {
-                       // mHandler.obtainMessage(DeviceControlActivity.MESSAGE_READ, bytes, -1, readMessage.toString()).sendToTarget();
-                        //readMessage.setLength(0);
-                    }
+//                    if (readed.contains("\n")) {
+//                       // mHandler.obtainMessage(DeviceControlActivity.MESSAGE_READ, bytes, -1, readMessage.toString()).sendToTarget();
+//                        //readMessage.setLength(0);
+//                    }
 
                 } catch (IOException e) {
                     if (D) Log.e(TAG, "disconnected", e);
@@ -458,12 +427,6 @@ public class DeviceConnector {
                 temp.put("control",Control);
                 temp.put("type",Type);
                 temp.put("value",Value);
-//
-//            String JSON = "{\n" +
-//                    "    \"control\":"+Control+",\n" +
-//                    "    \"type\":"+Type+"\n" +
-//                    "    \"value\":"+Value+"\n" +
-//                    "}";
                 return temp.toString();
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -496,9 +459,7 @@ public class DeviceConnector {
             }
 
         }
-        /**
-         * Записать кусок данных в устройство
-         */
+
         public void writeData(byte[] chunk) {
 
             try {
@@ -513,9 +474,7 @@ public class DeviceConnector {
         // ==========================================================================
 
 
-        /**
-         * Записать байт
-         */
+
         public void write(byte command) {
             byte[] buffer = new byte[1];
             buffer[0] = command;

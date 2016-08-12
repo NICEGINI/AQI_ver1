@@ -156,7 +156,7 @@ public class DeviceScanActivity extends ListActivity {
                     mScanning = false;
                 }
                 bleCallback.sendIntent(intent);
-
+                Log.d("ble","send callback start ble");
                 finish();
 //                startActivity(intent);
             }

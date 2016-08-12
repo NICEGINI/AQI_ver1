@@ -210,14 +210,16 @@ public class Realtime_Fragment extends Fragment {
             JSONObject parser = new JSONObject(temp);
 
       //      Calendar cal = Calendar.getInstance();
-        //    TimeZone timeZone = cal.getTimeZone();
-             Date now = new Date(parser.getLong("timestamp"));
 
-//            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH: mm: ss");
-//            simpleDateFormat.setTimeZone(timeZone);
-//            String localTime = simpleDateFormat.format(new Date()); // I assume your timestamp is in seconds and you're converting to milliseconds?
+
+            Calendar tt = Calendar.getInstance();
+            tt.setTimeInMillis(parser.getLong("timestamp")*1000);
+            TimeZone timeZone = tt.getTimeZone();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH: mm: ss");
+            simpleDateFormat.setTimeZone(timeZone);
+            String localTime = simpleDateFormat.format(new Date()); // I assume your timestamp is in seconds and you're converting to milliseconds?
             //시간 변경
-            tv_time_val.setText(now.toLocaleString());
+            tv_time_val.setText(localTime);
 
 //            hr =  (int) (Math.random() * (180 - 30)+30);
 //            setHeartColor(hr, tv_hr, iv_hr);
