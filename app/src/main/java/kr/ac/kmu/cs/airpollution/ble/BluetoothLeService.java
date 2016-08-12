@@ -69,9 +69,15 @@ public class BluetoothLeService extends Service {
     public final static UUID UUID_HEART_RATE_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
 
+    public final static UUID UUID_BATTERY_SERVICE_MEASUREMENT =
+            UUID.fromString(SampleGattAttributes.BATTERY_SERVICE_UUID);
+    ;
     public final static UUID UUID_BATTERY_LEVEL_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.BATTERY_LEVEL_UUID);
 
+
+
+    boolean servicediscovered = false;
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -101,6 +107,7 @@ public class BluetoothLeService extends Service {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
+                servicediscovered = true;
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
@@ -203,7 +210,8 @@ public class BluetoothLeService extends Service {
             Log.d(TAG, String.format("Received heart rate: %d", heartRate));
             //인텐트에 하트레이트 밸류값 집어 넣어서 보내줌 ㅇㅇ
             //intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
-            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate)+","+String.valueOf(pnnCount)+","+String.valueOf(pnnPercentage));
+            int bat = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0);
+            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate)+","+String.valueOf(pnnCount)+","+String.valueOf(pnnPercentage)+","+String.valueOf(bat));
         } else {
             // For all other profiles, writes the data formatted in HEX.
             final byte[] data = characteristic.getValue();
@@ -216,6 +224,34 @@ public class BluetoothLeService extends Service {
         }
         sendBroadcast(intent);
     }
+
+    public void getBattery() {
+
+        if (mBluetoothGatt == null || !servicediscovered) {
+            Log.e(TAG, "lost connection");
+            return;
+        }
+
+        BluetoothGattService batteryService = mBluetoothGatt.getService(UUID_BATTERY_SERVICE_MEASUREMENT);
+        if(batteryService == null) {
+            Log.e(TAG, "Battery service not found!");
+            return;
+        }
+
+        BluetoothGattCharacteristic batteryLevel = batteryService.getCharacteristic(UUID_BATTERY_LEVEL_MEASUREMENT);
+        if(batteryLevel == null) {
+            Log.e(TAG, "Battery level not found!");
+            return;
+        }
+
+        mBluetoothGatt.readCharacteristic(batteryLevel);
+       // Log.w(TAG, "batteryLevel = " + mBluetoothGatt.readCharacteristic(batteryLevel));
+
+        //int bl = batteryLevel.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0);
+        //Log.w(TAG, "Battery level found: "+bl);
+        //broadcastUpdate(ACTION_BATTERY_DATA_AVAILABLE, bl+"");
+    }
+
     //바인딩.
     public class LocalBinder extends Binder {
         public BluetoothLeService getService() {
@@ -324,6 +360,7 @@ public class BluetoothLeService extends Service {
      */
     public void disconnect() {
         //디스 커넥트함
+        servicediscovered = false;
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;

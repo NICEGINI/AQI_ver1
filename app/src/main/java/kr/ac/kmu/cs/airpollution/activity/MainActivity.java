@@ -252,19 +252,21 @@ public class MainActivity extends AppCompatActivity {
             int hr = 0;
             int count_nn = 0;
             int pnnPercentage = 0;
+            int bat = 0;
             String[] heartdata;
             try {
                 heartdata = data.split(",");
                 hr = Integer.parseInt(heartdata[0]);
                 count_nn = Integer.parseInt(heartdata[1]);
                 pnnPercentage = Integer.parseInt(heartdata[2]);
+                bat = Integer.parseInt(heartdata[3]);
 
                 realTimeHeartBuffer.Insert_Heart_Data(hr);
             } catch (Exception e) {
                 Log.e("BLE", e.getMessage());
             }
             HRCallback.sendIntent(hr);
-            NNCallback.sendIntent(count_nn, pnnPercentage);
+            NNCallback.sendIntent(count_nn, pnnPercentage, bat);
             //Log.d("Receive DATA",data);
             //mDataField.setText(data);
         }
@@ -291,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public interface sendNNCallback { // 인터페이스를 통해 메인 액티비티로 호출한 함수 지정
-        public void sendIntent(int count_nn, int pnnpercent);
+        public void sendIntent(int count_nn, int pnnpercent, int bat);
         public void setClear();
     }
 

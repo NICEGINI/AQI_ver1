@@ -33,7 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
-                android:text="Time: "
+                android:text="BAT"
                 android:id="@+id/textView35"
                 android:layout_gravity="center"
                 android:layout_column="0" />
@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
                 android:text="N/A"
-                android:id="@+id/textView38"
+                android:id="@+id/tv_bat"
                 android:layout_column="1" />
         </TableRow>
 

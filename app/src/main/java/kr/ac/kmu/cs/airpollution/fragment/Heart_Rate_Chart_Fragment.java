@@ -38,10 +38,12 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
     private TextView tv_percent_NNF;
     private TextView tv_NNF;
     private TextView tv_NN;
+    private TextView tv_bat;
 
     private MainActivity.sendNNCallback NNCallback = new MainActivity.sendNNCallback() {
         @Override
-        public void sendIntent(int count_nn, int pnnpercent) {
+        public void sendIntent(int count_nn, int pnnpercent, int bat) {
+            tv_bat.setText(String.valueOf(bat));
             tv_NN.setText(String.valueOf(Const_rr_data.total_HR));
             tv_NNF.setText(String.valueOf(count_nn));
             tv_percent_NNF.setText(String.valueOf(pnnpercent)+"%");
@@ -49,6 +51,7 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
 
         @Override
         public void setClear() {
+            tv_bat.setText("");
             tv_NN.setText("N/A");
             tv_NNF.setText("N/A");
             tv_percent_NNF.setText("N/A");
@@ -62,6 +65,7 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
         tv_percent_NNF = (TextView)view.findViewById(R.id.tv_pNN_val);
         tv_NNF = (TextView)view.findViewById(R.id.tv_NNFif_val);
         tv_NN = (TextView)view.findViewById(R.id.tv_NN_val);
+        tv_bat = (TextView)view.findViewById(R.id.tv_bat);
 
         mChart = (LineChart)view.findViewById(R.id.lc_heart_rate);
 
