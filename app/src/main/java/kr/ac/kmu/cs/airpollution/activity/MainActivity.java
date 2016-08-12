@@ -390,16 +390,18 @@ public class MainActivity extends AppCompatActivity {
     //=====================================================================
     //블루투스 핸들러 ㅇㅇ
     boolean isStart = false;
-
+    int i =0;
     private final Handler bluetoothHandler = new Handler() {
         StringBuilder CSVBuilder = new StringBuilder();
         boolean csvStart = false;
         String temp;
+
         @Override
         public void handleMessage(Message msg) { //블루투스에서 데이터 들어오는곳
             //블루투스 핸들러 받은 데이터를 잘 처리한다.
             boolean isCSV = false;
-            int i =0;
+
+            JSONObject parser = null;
             String strData = msg.getData().getString("data");
             Log.d("UDOO DATA",strData);
 
@@ -407,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
                 stopConnection();
                 return; // 끝.
             }
-            if(strData.contains("*") || strData.contains("+") || strData.contains("&")){
+            if(strData.contains("*") || strData.contains("&")){
                 isCSV = true;
                 if(csvStart == false){
                     if(strData.contains("*")){
@@ -426,6 +428,7 @@ public class MainActivity extends AppCompatActivity {
 
                         try {
                             Log.d("file add","파일 만들기 시작");
+
                             File file = new File(Environment.getExternalStorageDirectory() + "/Download/"+i+"ok.txt");
                             FileWriter fw = new FileWriter(file, true) ;
                             fw.write(temp);
@@ -447,18 +450,39 @@ public class MainActivity extends AppCompatActivity {
                         csvStart = false; //끝
                     }else {
                         Log.d("CSV FILE","파일 붙이기");
-                        CSVBuilder.append(strData.substring(1,strData.length()-1));
+                        CSVBuilder.append(strData.substring(0,strData.length()-1));
                         //더하는 영역임
                     }
                 }
-
-
                 Log.d("strData","이자료는 csv임"+strData.length());
             }else if (strData.contains("control")){
                 Log.d("strData","이자료는 제어 문임"+strData.length());
+                try {
+                    parser = new JSONObject(strData);
+                    String control = parser.getString("control");
+                    String type = parser.getString("type");
+                    String value = parser.getString("value");
+                    if(control.equals("connect") && type.equals("response")){
+                        long epoch = System.currentTimeMillis()/1000;
+                        String recTime = Long.toString(epoch);
+                        Log.d("reqConnect","reqConnect UDOO");
+                        new httpController(MainActivity.this).reqConnect(Const.getUserEmail(),recTime,Const.getUdooMac(),0);
+                        CBTC.sendStart();
+                        isStart = true;
+
+
+                    }
+                    if(parser != null) Log.d("bt",control+" "+type+" "+value);
+                    Log.d("bt","잘받아짐");
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                isStart = true;
                 return; // 제어문은 그냥 리턴한다.
             }
-            JSONObject parser = null;
+
+
 
 
 
@@ -479,40 +503,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            if(!isStart){
-                Log.d("bt","접근됨");
-                Log.d("bt",strData);
-                if(strData.contains("CO")) return; // 제어문 아님 초반에만 이럼.
-                try {
-                    parser = new JSONObject(strData);
-                    String control = parser.getString("control");
-                    String type = parser.getString("type");
-                    String value = parser.getString("value");
-                    if(control.equals("connect") && type.equals("response")){
-                        long epoch = System.currentTimeMillis()/1000;
-                        String recTime = Long.toString(epoch);
-                        Log.d("reqConnect","reqConnect UDOO");
-                        new httpController(MainActivity.this).reqConnect(Const.getUserEmail(),recTime,Const.getUdooMac(),0);
-                        CBTC.sendStart();
-                        isStart = true;
 
-
-                    }
-                    if(parser != null) Log.d("bt",control+" "+type+" "+value);
-                    Log.d("bt","잘받아짐");
-
-
-
-
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-
-                isStart = true;
-                isCSV = false;
-            }
             //Toast.makeText(getBaseContext(), strData, Toast.LENGTH_SHORT).show();
                 /*Air_Data ar=(Air_Data)msg.getData().getSerializable("data");
             String vv=String.valueOf(ar.co)+","+String.valueOf(ar.co2)+","+String.valueOf(ar.no2)+","
