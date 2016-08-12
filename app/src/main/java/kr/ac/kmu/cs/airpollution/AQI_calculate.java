@@ -21,7 +21,7 @@ public class AQI_calculate {
         O3_EIGHT_HR_AVE = receive_O3;
     }
 
-    public static float CO_AQI_Cal(){
+    public static float CO_AQI_Cal(float data){
         // Break Point -> 4.4, 9.4, 12.4, 15.4, 30.4, 40.4, 50.4  measurement time is 8 hr
         if(CO_EIGHT_HR_AVE <= 4.4){
             return CO_AQI = (float)(((BREAK_POINT_GOOD)/(4.4 - 0.0))*(CO_EIGHT_HR_AVE - 0.0) + GOOD_LOWER);
@@ -48,7 +48,7 @@ public class AQI_calculate {
             return CO_AQI = HAZARDOUS_MAX;
     }
 
-    public static float SO2_AQI_Cal(){
+    public static float SO2_AQI_Cal(float data){
         // Break Point -> 35, 75, 185, 304, 604, 804, 1004 measurement time is 1 hr
         if(SO2_ONE_HR_AVE <= 35){
             return SO2_AQI = (float)(((BREAK_POINT_GOOD)/(35 - 0.0))*(SO2_ONE_HR_AVE - 0.0) + GOOD_LOWER);
@@ -75,7 +75,7 @@ public class AQI_calculate {
             return SO2_AQI = HAZARDOUS_MAX;
     }
 
-    public static float NO2_AQI_Cal(){
+    public static float NO2_AQI_Cal(float data){
         // Break Point -> 53, 100, 360, 649, 1249, 1649, 2049  measurement time is 1 hr
         if(NO2_ONE_HR_AVE <= 53){
             return NO2_AQI = (float)(((BREAK_POINT_GOOD)/(53 - 0.0))*(SO2_ONE_HR_AVE - 0.0) + GOOD_LOWER);
@@ -102,7 +102,7 @@ public class AQI_calculate {
             return NO2_AQI = HAZARDOUS_MAX;
     }
 
-    public static float PM_AQI_Cal(){
+    public static float PM_AQI_Cal(float data){
         // Break Point -> 12, 35.4, 55.4, 150.4, 250.4, 350.4, 500.4  measurement time is 1 hr
         if(PM_TWENTY_FOUR_HR_AVE <= 12.0){
             return PM_AQI = (float)(((BREAK_POINT_GOOD)/(12.0 - 0.0))*(PM_TWENTY_FOUR_HR_AVE - 0.0) + GOOD_LOWER);
@@ -129,7 +129,7 @@ public class AQI_calculate {
             return PM_AQI = HAZARDOUS_MAX;
     }
 
-    public static float O3_EIGHT_AQI_Cal(){
+    public static float O3_EIGHT_AQI_Cal(float data){
         // Break Point -> 54, 70, 85, 105, 200  measurement time is 8 hr not exist Hazardous area
         if(O3_EIGHT_HR_AVE <= 54){
             return O3_EIGHT_AQI = (float)(((BREAK_POINT_GOOD)/(54 - 0.0))*(O3_EIGHT_HR_AVE - 0.0) + GOOD_LOWER);
@@ -159,7 +159,7 @@ public class AQI_calculate {
             }
     }
 
-    public static float O3_ONE_AQI_Cal(){
+    public static float O3_ONE_AQI_Cal(float data){
         // Break Point -> 164, 204, 404, 504, 604  measurement time is 1 hr not exist Good area
         if(O3_ONE_HR_AVE <= 124){
             if(O3_EIGHT_HR_AVE <= 54)

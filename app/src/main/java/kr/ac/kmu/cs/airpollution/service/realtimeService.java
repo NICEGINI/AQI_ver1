@@ -47,14 +47,15 @@ public class realtimeService extends Service {
     private airDatabaseOpenHelper helper;
     private String temp;
     boolean heartConnect = false;
-
+    private airDatabaseOpenHelper dbManager;
+    SQLiteDatabase database;
     public static void setHeartConnect(boolean heartConnect) {
         heartConnect = heartConnect;
     }
 
     private static boolean  isRunningRealtimeChart = false;
 
-    public realtimeService(){
+    public realtimeService() {
         super();
         //Toast.makeText(this,"스레드 fdsfdsfs시작됨",Toast.LENGTH_SHORT).show();
         RF = Realtime_Fragment.getInstance();
@@ -73,15 +74,19 @@ public class realtimeService extends Service {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if(!flag) timer.cancel();
-                long epoch = System.currentTimeMillis()/1000;
+                if (!flag) timer.cancel();
+                long epoch = System.currentTimeMillis() / 1000;
                 String recTime = Long.toString(epoch);
-                HashMap<Long,LatLng> temp = new HashMap<Long, LatLng>();
-                if(locBuffer.getCurrentLoc() != null){
-                    temp.put(epoch,locBuffer.getCurrentLoc());
+                HashMap<Long, LatLng> temp = new HashMap<Long, LatLng>();
+                if (locBuffer.getCurrentLoc() != null) {
+                    temp.put(epoch, locBuffer.getCurrentLoc());
                     locBuffer.addLocData(temp);
+//                    dbManager = new airDatabaseOpenHelper(getBaseContext());
+//                    database = dbManager.getWritableDatabase();
+//                    dbManager.insert_LATLNG_data(database, epoch, locBuffer.getLat(), locBuffer.getLng());
+
                 }
-                if(MainActivity.isPolarOn() && Const.getHeartConnectId().length() > 0){
+                if (MainActivity.isPolarOn() && Const.getHeartConnectId().length() > 0) {
 //                    {
 //                        "connectionID": 2,
 //                            "devType": 0,
@@ -95,73 +100,32 @@ public class realtimeService extends Service {
 
                     try {
                         JSONObject parser = new JSONObject();
-                        parser.put("timestamp",recTime);
+                        parser.put("timestamp", recTime);
                         parser.put("heartrate", realTimeHeartBuffer.getNow());
-                        if(locBuffer.getCurrentLoc() != null){
-                            parser.put("latitude",locBuffer.getLat());
-                            parser.put("longitude",locBuffer.getLng());
+                        if (locBuffer.getCurrentLoc() != null) {
+                            parser.put("latitude", locBuffer.getLat());
+                            parser.put("longitude", locBuffer.getLng());
                         }
-                       // String tt = parser.toString();
+                        // String tt = parser.toString();
                         JSONArray tempaa = new JSONArray();
                         tempaa.put(parser);
                         JSONObject temp2 = new JSONObject();
                         temp2.put("connectionID", Const.getHeartConnectId());
-                        temp2.put("devType","0");
-                        temp2.put("data",tempaa);
-                        new httpController(getBaseContext()).sendRealtimeHeart(Const.getHeartConnectId(),temp2.toString());
-                        Log.d("ble","send REAL TIME DATA");
+                        temp2.put("devType", "0");
+                        temp2.put("data", tempaa);
+                        new httpController(getBaseContext()).sendRealtimeHeart(Const.getHeartConnectId(), temp2.toString());
+                        Log.d("ble", "send REAL TIME DATA");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
             }
-        },1000,1000);
-        if(service_Thread == null){
-            service_Thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while(flag){
-                            /*final String temp = jsonController.CreateFakeJsonFile();
-                            Intent intent = new Intent();
-                            intent.setAction("TEST.INTENT");
-                            intent.putExtra("DATA",temp);
-                            sendBroadcast(intent);
-                            Log.d("Service Test","Good1");*/
-                            Thread.sleep(4900);
+        }, 1000, 1000);
 
-//                            if((Realtime_Fragment.getInstance().getView() != null) && Question_Activity.isFlag()){
-//                                Realtime_Fragment.getInstance().getView().post(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//
-//
-//                                        temp = jsonController.CreateFakeJsonFile();
-//                                        Realtime_Fragment.getInstance().set_view(temp);
-//
-//                                        Log.d("Service Test","Good2");
-//                                        realTimeBuffer.insertData(jsonController.getAirDate(temp));
-//                                    }
-//                                });
-//
-//                            }else {
-//                                while((Realtime_Fragment.getInstance().getView() == null) && !Question_Activity.isFlag()) Thread.sleep(200);
-//                                //뷰가 없거나 도움말이 떠 있을때 정지합니다.
-//                            }
-                            //i++;
-                            // Toast.makeText(getApplicationContext(),"잘돌아감",Toast.LENGTH_SHORT).show();
-                            //Log.d("Service Test","Good");
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
 //            service_Thread.start();
             Log.d("Service Test","service Thread go...");
         }
-        //Toast.makeText(this,"스레드 시작됨",Toast.LENGTH_SHORT).show();
-    }
+
 
     @Override
     public void onDestroy() {

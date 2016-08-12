@@ -20,6 +20,25 @@ public class Const {
     private static String UDOO_MAC;
     private static String UDOO_CONNECT_ID = "";
     private static String HEART_CONNECT_ID = "";
+    private static int battery = 0;
+    private static long start_chart_time = 0;
+    public static long getStart_chart_time() {
+        return start_chart_time;
+    }
+
+    public static void setStart_chart_time(long start_chart_time) {
+        Const.start_chart_time = start_chart_time;
+    }
+
+
+    public static void setBattery(int battery) {
+        Const.battery = battery;
+    }
+
+    public static int getBattery() {
+        return battery;
+    }
+
 
 
     public static void setHeartConnectId(String heartConnectId) {

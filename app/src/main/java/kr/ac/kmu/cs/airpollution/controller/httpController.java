@@ -360,12 +360,18 @@ public class httpController extends AsyncTask<String, String, String> {
                         //성공했을때.
                         break;
                     case 1:
+                        if(status.contains("email")){
+                            showMsgDialog("check your information correctly.");
+                        }
                         Log.d("http fail","http fail 1");
-                        //showMsgDialog("login fail");
+                        //
                         break;
                     case 2:
+                        if(status.contains("password")){
+                            showMsgDialog("check your information correctly.");
+                        }
                         Log.d("http fail","http fail 2");
-                        //showMsgDialog("login fail");
+                        //
 
                         break;
                     default:

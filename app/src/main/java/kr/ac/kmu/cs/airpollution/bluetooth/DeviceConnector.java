@@ -18,13 +18,11 @@ package kr.ac.kmu.cs.airpollution.bluetooth;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInput;
 import java.io.OutputStream;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -35,8 +33,6 @@ import org.json.JSONObject;
 
 import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.activity.MainActivity;
-import kr.ac.kmu.cs.airpollution.controller.httpController;
-
 
 public class DeviceConnector {
     private static final String TAG = "DeviceConnector";

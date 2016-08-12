@@ -14,6 +14,9 @@ public class realTimeHeartBuffer {
 
     private static int now;
     public static void Insert_Heart_Data(int hr){
+        if(heartRateBuffer.size() > 60){
+            heartRateBuffer.remove(0);
+        }
         heartRateBuffer.add(hr);
         now = hr;
     }

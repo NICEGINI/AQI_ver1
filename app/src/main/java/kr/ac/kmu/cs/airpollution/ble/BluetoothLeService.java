@@ -35,6 +35,7 @@ import android.util.Log;
 import java.util.List;
 import java.util.UUID;
 
+import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.Const_rr_data;
 import kr.ac.kmu.cs.airpollution.fragment.Heart_Rate_Chart_Fragment;
 
@@ -102,7 +103,7 @@ public class BluetoothLeService extends Service {
                 broadcastUpdate(intentAction);
             }
         }
-        // 서
+
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -206,22 +207,25 @@ public class BluetoothLeService extends Service {
                     Const_rr_data.pre_RR = rrValue[i];
                 }
             }
-
+            getBattery();
             Log.d(TAG, String.format("Received heart rate: %d", heartRate));
             //인텐트에 하트레이트 밸류값 집어 넣어서 보내줌 ㅇㅇ
             //intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
-            int bat = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0);
-            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate)+","+String.valueOf(pnnCount)+","+String.valueOf(pnnPercentage)+","+String.valueOf(bat));
-        } else {
-            // For all other profiles, writes the data formatted in HEX.
-            final byte[] data = characteristic.getValue();
-            if (data != null && data.length > 0) {
-                final StringBuilder stringBuilder = new StringBuilder(data.length);
-                for(byte byteChar : data)
-                    stringBuilder.append(String.format("%02X ", byteChar));
-                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
-            }
+           // batteryService.getCharacteristic(UUID_BATTERY_LEVEL_MEASUREMENT)
+
+           // int bat = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0);
+            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate)+","+String.valueOf(pnnCount)+","+String.valueOf(pnnPercentage));
         }
+//        else {
+//            // For all other profiles, writes the data formatted in HEX.
+//            final byte[] data = characteristic.getValue();
+//            if (data != null && data.length > 0) {
+//                final StringBuilder stringBuilder = new StringBuilder(data.length);
+//                for(byte byteChar : data)
+//                    stringBuilder.append(String.format("%02X ", byteChar));
+//                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
+//            }
+//        }
         sendBroadcast(intent);
     }
 
@@ -246,9 +250,16 @@ public class BluetoothLeService extends Service {
 
         mBluetoothGatt.readCharacteristic(batteryLevel);
        // Log.w(TAG, "batteryLevel = " + mBluetoothGatt.readCharacteristic(batteryLevel));
+        try{
+            int bl = batteryLevel.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0);
+            Const.setBattery(bl);
+            Log.w(TAG, "Battery level found: "+Const.getBattery());
+        }
+        catch (Exception e){
+            Log.w("Battery",e.getMessage());
+        }
 
-        //int bl = batteryLevel.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0);
-        //Log.w(TAG, "Battery level found: "+bl);
+        //broadcastUpdate("battery",batteryLevel);//
         //broadcastUpdate(ACTION_BATTERY_DATA_AVAILABLE, bl+"");
     }
 

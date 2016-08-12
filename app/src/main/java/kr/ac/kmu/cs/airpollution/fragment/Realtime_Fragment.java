@@ -29,6 +29,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import kr.ac.kmu.cs.airpollution.AQI_calculate;
+import kr.ac.kmu.cs.airpollution.Buffer.locBuffer;
+import kr.ac.kmu.cs.airpollution.Buffer.realTimeBuffer;
 import kr.ac.kmu.cs.airpollution.PagerAdapter.MyFragmentPagerAdapter;
 import kr.ac.kmu.cs.airpollution.R;
 import kr.ac.kmu.cs.airpollution.activity.MainActivity;
@@ -198,7 +201,11 @@ public class Realtime_Fragment extends Fragment {
     public void set_view(String temp)
     {
     //    {"CO": 0.3, "NO2": 0.0, "O3": 0.0, "PM": 5.2, "SO2": 0.0, "temperature": 47, "timestamp": 1470909980}
-        double co, no2, so2, pm, o3;
+        float co;
+        float no2;
+        float so2;
+        float pm;
+        float o3;
         int temperature;
         int hr;
         String AQI, color;
@@ -208,7 +215,35 @@ public class Realtime_Fragment extends Fragment {
         //    jsonController jsonController = new jsonController(temp, true);
           //  JSONObject obj = jsonController.getAirdata().getJSONObject(0);
             JSONObject parser = new JSONObject(temp);
+            co = Float.parseFloat(parser.getString("CO"));
+            so2 =Float.parseFloat(parser.getString("SO2"));
+            pm = Float.parseFloat(parser.getString("PM"));
+            o3 = Float.parseFloat(parser.getString("O3"));
+            no2 = Float.parseFloat(parser.getString("NO2"));
+            AQI_calculate.setAirdata(co,so2,no2,pm,o3);
 
+            no2 = AQI_calculate.NO2_AQI_Cal(no2);
+            o3 = AQI_calculate.O3_EIGHT_AQI_Cal(o3);
+            pm = AQI_calculate.PM_AQI_Cal(pm);
+            so2 = AQI_calculate.SO2_AQI_Cal(so2);
+            co = AQI_calculate.CO_AQI_Cal(co);
+            JSONObject insert = new JSONObject();
+            insert.put("CO",String.valueOf(co));
+            insert.put("O3",String.valueOf(o3));
+            insert.put("PM",String.valueOf(pm));
+            insert.put("SO2",String.valueOf(so2));
+            insert.put("NO2",String.valueOf(no2));
+            if(locBuffer.getCurrentLoc() != null){
+                insert.put("lat",locBuffer.getLat());
+                insert.put("lng",locBuffer.getLng());
+            }else {
+                insert.put("lat",0.0);
+                insert.put("lng",0.0);
+            }
+            long epoch = System.currentTimeMillis()/1000;
+            String time = String.valueOf(epoch);
+            insert.put("timestamp",time);
+            realTimeBuffer.insertData(insert);
       //      Calendar cal = Calendar.getInstance();
 
 
@@ -225,29 +260,29 @@ public class Realtime_Fragment extends Fragment {
 //            setHeartColor(hr, tv_hr, iv_hr);
             //User_Setting_Fragment.setUserHeartRate(hr);
 
-            co = Double.parseDouble(parser.getString("CO"));
+
             color = setColor(co);
             //tv_co_val.setTextColor(Color.parseColor(color));
-            AQI = setAQI(co,"CO", parser);
+            AQI = setAQI(Math.round(AQI_calculate.CO_AQI_Cal(co)*10)/10.0);
             tv_co_val.setText(AQI);
 
 
-            so2 =Double.parseDouble(parser.getString("SO2"));
+
             color = setColor(so2);
             //tv_so2_val.setTextColor(Color.parseColor(color));
-            AQI = setAQI(so2,"SO2", parser);
+            AQI = setAQI(Math.round(AQI_calculate.SO2_AQI_Cal(so2)*10)/10.0);
             tv_so2_val.setText(AQI);
 
-            no2 = Double.parseDouble(parser.getString("NO2"));
+
             color = setColor(no2);
             //tv_no2_val.setTextColor(Color.parseColor(color));
-            AQI = setAQI(no2,"NO2", parser);
+            AQI = setAQI(Math.round(AQI_calculate.NO2_AQI_Cal(no2)*10)/10.0);
             tv_no2_val.setText(AQI);
 
-            pm = Double.parseDouble(parser.getString("PM"));
+
             color = setColor(pm);
            // tv_pm_val.setTextColor(Color.parseColor(color));
-            AQI = setAQI(pm,"PM", parser);
+            AQI = setAQI(Math.round(AQI_calculate.PM_AQI_Cal(pm)*10)/10.0);
 
             //addition part////
             //User_Setting_Fragment.setUserCurrentAQI(AQI);
@@ -256,10 +291,11 @@ public class Realtime_Fragment extends Fragment {
             /////////////////
             tv_pm_val.setText(AQI);
 
-            o3 = Double.parseDouble(parser.getString("O3"));
+            tv_temperature_val.setText(parser.getString("temperature"));
+
             color = setColor(o3);
             //tv_o3_val.setTextColor(Color.parseColor(color));
-            AQI = setAQI(o3,"O3", parser);
+            AQI = setAQI(Math.round(AQI_calculate.O3_ONE_AQI_Cal(o3)*10)/10.0);
             tv_o3_val.setText(AQI);
 
 
@@ -268,75 +304,6 @@ public class Realtime_Fragment extends Fragment {
             e.printStackTrace();
         }
     }
-    //원본 (페이크)
-//    public void set_view(String temp)
-//    {
-//        //    {"CO": 0.3, "NO2": 0.0, "O3": 0.0, "PM": 5.2, "SO2": 0.0, "temperature": 47, "timestamp": 1470909980}
-//        double co, no2, so2, pm, o3;
-//        int temperature;
-//        int hr;
-//        String AQI, color;
-//
-//        try
-//        {
-//            jsonController jsonController = new jsonController(temp, true);
-//            JSONObject obj = jsonController.getAirdata().getJSONObject(0);
-//
-//            Calendar cal = Calendar.getInstance();
-//            TimeZone timeZone = cal.getTimeZone();
-//
-//            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH: mm: ss");
-//            simpleDateFormat.setTimeZone(timeZone);
-//            String localTime = simpleDateFormat.format(new Date()); // I assume your timestamp is in seconds and you're converting to milliseconds?
-//
-//            tv_time_val.setText(localTime);
-//
-////            hr =  (int) (Math.random() * (180 - 30)+30);
-////            setHeartColor(hr, tv_hr, iv_hr);
-//            //User_Setting_Fragment.setUserHeartRate(hr);
-//
-//            co = Double.parseDouble(obj.getString("co"));
-//            color = setColor(co);
-//            //tv_co_val.setTextColor(Color.parseColor(color));
-//            AQI = setAQI(co,"co", obj);
-//            tv_co_val.setText(AQI);
-//
-//
-//            so2 =Double.parseDouble(obj.getString("so2"));
-//            color = setColor(so2);
-//            //tv_so2_val.setTextColor(Color.parseColor(color));
-//            AQI = setAQI(so2,"so2", obj);
-//            tv_so2_val.setText(AQI);
-//
-//            no2 = Double.parseDouble(obj.getString("no2"));
-//            color = setColor(no2);
-//            //tv_no2_val.setTextColor(Color.parseColor(color));
-//            AQI = setAQI(no2,"no2", obj);
-//            tv_no2_val.setText(AQI);
-//
-//            pm = Double.parseDouble(obj.getString("pm2.5"));
-//            color = setColor(pm);
-//            // tv_pm_val.setTextColor(Color.parseColor(color));
-//            AQI = setAQI(pm,"pm2.5", obj);
-//
-//            //addition part////
-//            //User_Setting_Fragment.setUserCurrentAQI(AQI);
-//            tv_Current_State.setText(setCurrentState(pm));
-//            tv_Current_State.setTextColor(Color.parseColor(color));
-//            /////////////////
-//            tv_pm_val.setText(AQI);
-//
-//            o3 = Double.parseDouble(obj.getString("o3"));
-//            color = setColor(o3);
-//            //tv_o3_val.setTextColor(Color.parseColor(color));
-//            AQI = setAQI(o3,"o3", obj);
-//            tv_o3_val.setText(AQI);
-//
-//            iv_current_AQI.setImageResource(setEmoticon(pm));
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     // setting current temperature
     public String setTemperature(JSONObject obj){
@@ -354,13 +321,11 @@ public class Realtime_Fragment extends Fragment {
     }
 
     // setting air AQI data
-    public String setAQI(double num, String air, JSONObject obj){
+    public String setAQI(double num){
         String AQI="";
-        try {
-            AQI = (num < 10) ? "00"+obj.getString(air) : (num < 100) ? "0"+obj.getString(air) : obj.getString(air);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
+        AQI = (num < 10) ? "00"+String.valueOf(num) : (num < 100) ? "0"+String.valueOf(num) : String.valueOf(num);
+
         return AQI;
     }
 

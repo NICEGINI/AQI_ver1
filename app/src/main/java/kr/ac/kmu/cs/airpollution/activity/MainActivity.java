@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
         sw_BT.setChecked(flag);
     }
     public static boolean isPolarOn(){
+        if(sw_BLE == null) return false;
         return sw_BLE.isChecked();
     }
     private Button btn_Question_Mark;
@@ -255,21 +256,21 @@ public class MainActivity extends AppCompatActivity {
             int hr = 0;
             int count_nn = 0;
             int pnnPercentage = 0;
-            int bat = 0;
+
             String[] heartdata;
             try {
                 heartdata = data.split(",");
                 hr = Integer.parseInt(heartdata[0]);
                 count_nn = Integer.parseInt(heartdata[1]);
                 pnnPercentage = Integer.parseInt(heartdata[2]);
-                bat = Integer.parseInt(heartdata[3]);
+
 
                 realTimeHeartBuffer.Insert_Heart_Data(hr);
             } catch (Exception e) {
                 Log.e("BLE", e.getMessage());
             }
             HRCallback.sendIntent(hr);
-            NNCallback.sendIntent(count_nn, pnnPercentage, bat);
+            NNCallback.sendIntent(count_nn, pnnPercentage);
             //Log.d("Receive DATA",data);
             //mDataField.setText(data);
         }
@@ -285,6 +286,7 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+
         return intentFilter;
     }
 
@@ -296,7 +298,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public interface sendNNCallback { // 인터페이스를 통해 메인 액티비티로 호출한 함수 지정
-        public void sendIntent(int count_nn, int pnnpercent, int bat);
+        public void sendIntent(int count_nn, int pnnpercent);
+        public void sendbattery(int battery);
         public void setClear();
     }
 
@@ -402,6 +405,7 @@ public class MainActivity extends AppCompatActivity {
     boolean isStart = false;
     int i =0;
     private final Handler bluetoothHandler = new Handler() {
+        private final String TAG = "bluetoothHandler";
         StringBuilder CSVBuilder = new StringBuilder();
         boolean csvStart = false;
         String temp;
@@ -413,13 +417,13 @@ public class MainActivity extends AppCompatActivity {
 
             JSONObject parser = null;
             String strData = msg.getData().getString("data");
-            Log.d("UDOO DATA",strData);
+            Log.d(TAG,strData);
 
             if(strData.equals("connectionLost")){
                 stopConnection();
                 return; // 끝.
             }
-            if(strData.contains("*") || strData.contains("&")){
+            if( (strData.contains("*") || strData.contains("&")) || !strData.contains("{") ){
                 isCSV = true;
                 if(csvStart == false){
                     if(strData.contains("*")){
@@ -450,6 +454,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("file add i",i+"");
 
                             Log.d("file add","파일 만듬");
+                            Toast.makeText(MainActivity.this,"CSV file received from UDOO",Toast.LENGTH_SHORT);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -492,12 +497,8 @@ public class MainActivity extends AppCompatActivity {
                 return; // 제어문은 그냥 리턴한다.
             }
 
-
-
-
-
             if(isStart && isCSV == false){
-                Log.d("dddd",strData);
+                Log.d("Realtime data",strData);
                 //리얼타임데이터 받는곳
 //                {"CO":0.3,"NO2":0,"O3":0,"PM":5.2,"SO2":0,"temperature":48,"timestamp":1470875712}
                 try {
@@ -514,23 +515,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            //Toast.makeText(getBaseContext(), strData, Toast.LENGTH_SHORT).show();
-                /*Air_Data ar=(Air_Data)msg.getData().getSerializable("data");
-            String vv=String.valueOf(ar.co)+","+String.valueOf(ar.co2)+","+String.valueOf(ar.no2)+","
-                    +String.valueOf(ar.o3)+","+String.valueOf(ar.so2);
-            Intent it = new Intent("Broad_data");
-            it.putExtra("data",vv);
-            //sendBroadcast(it);
-
-            p_adapter.rm.Set_realtime(ar);
-
-            p_adapter.rcm.Set_Realchart2(ar);
-            try {
-                p_adapter.rcm.Set_Realpie(ar);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            */
             super.handleMessage(msg);
 
         }
@@ -555,7 +539,6 @@ public class MainActivity extends AppCompatActivity {
                 //super.pendingRequestEnableBt = false;
                 if (resultCode != Activity.RESULT_OK) {
                     //Utils.log("BT not enabled");
-
                 }
                 break;
         }
@@ -605,11 +588,6 @@ public class MainActivity extends AppCompatActivity {
         if (connector != null) {
             connector.stop();
             connector = null;
-            //textViewUDOOName.setText(getSharedPreferences("MAC",0).getString("UDOONAME",""));
-
-            //DeviceListActivity.macaddress="NOT CONNECTED";
-            //imageViewUdoo.setImageResource(R.drawable.udoo0);
-
 
         }
         else if(connector==null)
@@ -662,7 +640,6 @@ public class MainActivity extends AppCompatActivity {
                 }else { // 연결 ㄴㄴ
                     sw_BLE.setChecked(true);
                     mBluetoothLeService.disconnect();
-                    //unbindService(mServiceConnection);
                     HRCallback.setClear();
                     NNCallback.setClear();
                     Toast.makeText(getBaseContext(),"disconnect Polar..",Toast.LENGTH_SHORT).show();
@@ -672,17 +649,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-//        sw_BLE.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-//                //DeviceScanActivity test = DeviceScanActivity.getInstance();
-//                //누른 후라서 bool값 반대로 적용됨
-//
-//
-//
-//
-////
-//
 //            }
 //        });
         sw_BT.setOnClickListener(new View.OnClickListener() {
@@ -690,7 +656,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 if(!btAdapter.isEnabled()){
-                    ;
+
                     //블루투스 안켜진 상태임
                     RequestBlueTooth();
                     realtimeService.setHeartConnect(false);
@@ -710,7 +676,7 @@ public class MainActivity extends AppCompatActivity {
 //                         sw_BT.setChecked(true);
                          //디바이스리스트액티비티 클래스를 스타트 액티비티 포 리저트 형식으로 열어줌으로 결과를 받음
                          Intent serverIntent = new Intent(getBaseContext(), DeviceListActivity.class);
-                         //Fragment fr=;
+
                          startActivityForResult(serverIntent,REQUEST_CONNECT_DEVICE );
 
                    }
@@ -755,7 +721,7 @@ public class MainActivity extends AppCompatActivity {
         rService = new Intent(this,realtimeService.class);
         startService(rService); // 서비스시작
 
-        Toast.makeText(getBaseContext(),"서비스 시작",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getBaseContext(),"start...",Toast.LENGTH_SHORT).show();
 
         //Toast.makeText(getApplicationContext(),"서비스 시작",Toast.LENGTH_SHORT).show();
         receiver = new BroadcastReceiver() {
@@ -768,13 +734,6 @@ public class MainActivity extends AppCompatActivity {
                 if(RFag.getView() != null) {
                     Log.d("Service Test","exist Instance");
                     RFag.set_view(temp);
-                    //여기서 부터 해야됨 프래그먼트 객체 존재함.
-                    /*RFag.getView().post(new Runnable() {
-                        @Override
-                        public void run() {
-                            RFag.set_view(temp);
-                        }
-                    });*/
                 }
             }
         };
@@ -832,22 +791,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-
     public static void setPager(int index){
         pager.setCurrentItem(index);
     }
-
-public void showMsgDialog(String msg){
-    android.support.v7.app.AlertDialog.Builder alert = new android.support.v7.app.AlertDialog.Builder(MainActivity.this);
-    alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            dialog.dismiss();     //닫기
-        }
-    });
-    alert.setMessage(msg);
-    alert.show();
-}
 }
 

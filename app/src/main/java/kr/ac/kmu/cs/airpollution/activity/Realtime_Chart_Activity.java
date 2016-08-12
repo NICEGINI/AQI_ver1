@@ -83,10 +83,6 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
     };
 
 
-    public static void setSeleted(String str) {
-        baseSeleted = str;
-    }
-
     public static String getBaseSeleted() {
         return baseSeleted;
     }
@@ -108,7 +104,6 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
 
         Log.d(TAG, "end fragment");
     }
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {

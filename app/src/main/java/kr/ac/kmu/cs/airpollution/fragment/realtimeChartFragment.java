@@ -1,6 +1,7 @@
 package kr.ac.kmu.cs.airpollution.fragment;
 
 import android.app.Fragment;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -25,6 +26,7 @@ import com.github.mikephil.charting.renderer.YAxisRenderer;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -33,11 +35,12 @@ import kr.ac.kmu.cs.airpollution.R;
 import kr.ac.kmu.cs.airpollution.activity.Realtime_Chart_Activity;
 import kr.ac.kmu.cs.airpollution.controller.jsonController;
 import kr.ac.kmu.cs.airpollution.Buffer.realTimeBuffer;
+import kr.ac.kmu.cs.airpollution.database.airDatabaseOpenHelper;
 
 public class realtimeChartFragment extends Fragment implements OnChartValueSelectedListener {
     private static String TAG = "realtimeChartFragment";
     private final String[] airdata = {"CO","SO2","NO2","PM2.5","O3"};
-    private final String[] airDataJSON = {"co","so2","no2" ,"pm2.5","o3"};
+    private final String[] airDataJSON = {"CO","SO2","NO2" ,"PM","O3"};
     private Thread realTimeThread;
     private flagSet FS = new flagSet();
     public interface ICallback { // 콜백 인터페이스
@@ -176,7 +179,24 @@ public class realtimeChartFragment extends Fragment implements OnChartValueSelec
             @Override
             public void onValueSelected(Entry e, Highlight h) {
                int index = Math.round(e.getX());
-               LatLng test = jsonController.getLatlng(realTimeBuffer.indexOf(index));
+//                //3second
+//                long time = Const.getStart_chart_time() + (3*index);
+//                airDatabaseOpenHelper dbManager;
+//                dbManager = new airDatabaseOpenHelper(getActivity());
+//                SQLiteDatabase database = dbManager.getReadableDatabase();
+                JSONObject temp =  realTimeBuffer.indexOf(index);
+                double lat = 0.0;
+                double lng = 0.0;
+                try {
+                    lat = temp.getDouble("lat");
+                    lng = temp.getDouble("lng");
+                } catch (JSONException e1) {
+                    e1.printStackTrace();
+                }
+
+                LatLng test = new LatLng(lat,lng);
+                Log.d("click",test.toString());
+//                database.close();
                 if(test == null){
                     Toast.makeText(getActivity(),"test is null",Toast.LENGTH_LONG).show();
                 }
@@ -241,14 +261,29 @@ public class realtimeChartFragment extends Fragment implements OnChartValueSelec
                 int currentLength = realTimeBuffer.getLength();
 
                 while (isRunning){
-                    if(currentLength < realTimeBuffer.getLength()){
+
                         currentLength = realTimeBuffer.getLength();
 
-                        // co , so2, no2, pm, o3
+                    try {
+                        if(realTimeBuffer.getLength() != 0) {
+                            JSONObject stamp = realTimeBuffer.indexOf(0);
+                            //Log.d("testtest",temp);
+                            Log.d("testtest", stamp.toString());
+                            String temp = stamp.getString("timestamp");
+
+                            Log.d("testtest", temp);
+
+                            long timestamp = Long.parseLong(temp);
+                            Const.setStart_chart_time(timestamp);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    // co , so2, no2, pm, o3
                         mChart.post(new Runnable() {
                             @Override
                             public void run() {
-                                setChart();
+
                                 if(FS.flag_co) {
                                     cb_co.setChecked(true);
 
@@ -277,13 +312,14 @@ public class realtimeChartFragment extends Fragment implements OnChartValueSelec
 
                                 }
                                 else cb_pm.setChecked(false);
+                                setChart();
                             }
                         });
 
-                        Log.e(TAG,"chart Thread is running");
-                    }
+                        Log.d(TAG,"chart Thread is running");
+
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -318,17 +354,17 @@ public class realtimeChartFragment extends Fragment implements OnChartValueSelec
             ArrayList<Entry> values = new ArrayList<Entry>();
 
             for (int i = 0; i < realTimeBuffer.getAirDataBuffer().size(); i++) {
-                double temp_num;
+                float temp_num;
                 int val = 0;
                 try {
                     String temp = realTimeBuffer.getAirDataBuffer().get(i).getString(airDataJSON[setNum]);
-                    temp_num = Double.parseDouble(temp);
+                    temp_num = Float.parseFloat(temp);
                     val = (int)Math.round(temp_num);
-                    //val = Integer.parseInt(temp);
+                    values.add(new Entry(i, temp_num));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                values.add(new Entry(i, val));
+
             }
 
             LineDataSet d = new LineDataSet(values, airdata[setNum]);

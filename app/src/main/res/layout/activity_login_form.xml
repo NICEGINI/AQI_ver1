@@ -60,7 +60,7 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginLeft="17dp"
                 android:layout_marginRight="17dp"
-                android:text="aa@bb.cc"
+                android:text="shineleaver@gmail.com"
                 android:singleLine="true"
                 android:selectAllOnFocus="true" />
 
@@ -78,7 +78,7 @@
                 android:layout_alignStart="@+id/et_Email"
                 android:layout_marginRight="17dp"
                 android:layout_marginBottom="18dp"
-                android:text="1234"
+                android:text="qwe123qwe123"
                 android:singleLine="true"
                 android:selectAllOnFocus="true" />
         </RelativeLayout>

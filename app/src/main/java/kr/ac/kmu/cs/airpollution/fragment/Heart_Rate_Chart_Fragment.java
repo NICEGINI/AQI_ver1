@@ -21,6 +21,7 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import java.util.ArrayList;
 
 import kr.ac.kmu.cs.airpollution.Buffer.realTimeHeartBuffer;
+import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.Const_rr_data;
 import kr.ac.kmu.cs.airpollution.R;
 import kr.ac.kmu.cs.airpollution.activity.MainActivity;
@@ -42,11 +43,22 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
 
     private MainActivity.sendNNCallback NNCallback = new MainActivity.sendNNCallback() {
         @Override
-        public void sendIntent(int count_nn, int pnnpercent, int bat) {
-            tv_bat.setText(String.valueOf(bat));
+        public void sendIntent(int count_nn, int pnnpercent) {
+            tv_bat.post(new Runnable() {
+                @Override
+                public void run() {
+                    tv_bat.setText(String.valueOf(Const.getBattery()));
+                }
+            });
+           //
             tv_NN.setText(String.valueOf(Const_rr_data.total_HR));
             tv_NNF.setText(String.valueOf(count_nn));
             tv_percent_NNF.setText(String.valueOf(pnnpercent)+"%");
+        }
+
+        @Override
+        public void sendbattery(int battery) {
+            tv_bat.setText(String.valueOf(battery));
         }
 
         @Override
