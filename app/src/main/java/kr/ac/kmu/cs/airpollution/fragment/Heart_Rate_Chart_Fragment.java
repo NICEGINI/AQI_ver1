@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -41,12 +42,15 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
     private TextView tv_NN;
     private TextView tv_bat;
 
+    private ImageView iv_bat;
+
     private MainActivity.sendNNCallback NNCallback = new MainActivity.sendNNCallback() {
         @Override
         public void sendIntent(int count_nn, int pnnpercent) {
             tv_bat.post(new Runnable() {
                 @Override
                 public void run() {
+                    iv_bat.setImageResource(setbattery());
                     tv_bat.setText(String.valueOf(Const.getBattery())+"%");
                 }
             });
@@ -63,6 +67,7 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
 
         @Override
         public void setClear() {
+            iv_bat.setImageResource(R.drawable.full_battery);
             tv_bat.setText("");
             tv_NN.setText("N/A");
             tv_NNF.setText("N/A");
@@ -70,6 +75,12 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
         }
     };
 
+    public int setbattery(){
+        return (Const.getBattery() < 10) ? R.drawable.battery_empty :  (Const.getBattery() < 25) ? R.drawable.battery_25_percent :
+                (Const.getBattery() < 50) ? R.drawable.battery_50_percent :  (Const.getBattery() < 75) ? R.drawable.battery_75_percent :
+                (Const.getBattery() < 100) ? R.drawable.full_battery : R.drawable.full_battery;
+
+    }
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.pager_fragment_heartchart,container,false);
 
@@ -78,6 +89,8 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
         tv_NNF = (TextView)view.findViewById(R.id.tv_NNFif_val);
         tv_NN = (TextView)view.findViewById(R.id.tv_NN_val);
         tv_bat = (TextView)view.findViewById(R.id.tv_bat);
+
+        iv_bat = (ImageView)view.findViewById(R.id.iv_bat);
 
         mChart = (LineChart)view.findViewById(R.id.lc_heart_rate);
 

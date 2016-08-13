@@ -3,12 +3,57 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:layout_gravity="right"
+        android:gravity="right"
+        android:layout_marginTop="4dp">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:gravity="right">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:id="@+id/iv_bat"
+                android:layout_gravity="center"
+                android:background="@drawable/battery_empty" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="   "
+                android:id="@+id/textView15" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:text="N/A"
+                android:id="@+id/tv_bat"
+                android:layout_column="1"
+                android:layout_gravity="right"
+                android:gravity="right"
+                android:layout_marginRight="10dp" />
+        </LinearLayout>
+
+    </TableRow>
+
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/lc_heart_rate"
         android:layout_width="match_parent"
         android:layout_height="165dp"
         android:padding="10dp"
-        android:layout_margin="10dp" />
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="5dp" />
 
     <TableLayout
         android:layout_width="match_parent"
@@ -21,32 +66,8 @@
         android:nestedScrollingEnabled="false"
         android:gravity="center_vertical"
         android:background="@drawable/boarder"
-        android:layout_margin="10dp">
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="4dp"
-            android:background="@drawable/boarder" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:text="BAT"
-                android:id="@+id/textView35"
-                android:layout_gravity="center"
-                android:layout_column="0" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20dp"
-                android:text="N/A"
-                android:id="@+id/tv_bat"
-                android:layout_column="1" />
-
-        </TableRow>
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
 
         <TableRow
             android:layout_width="match_parent"
