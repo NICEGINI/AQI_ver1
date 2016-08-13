@@ -68,6 +68,7 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
         @Override
         public void setClear() {
             iv_bat.setImageResource(R.drawable.full_battery);
+            Const_rr_data.init();
             tv_bat.setText("");
             tv_NN.setText("N/A");
             tv_NNF.setText("N/A");
