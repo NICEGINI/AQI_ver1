@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Airpollution</string>
+    <string name="app_name">SAMS</string>
 
     <!-- prefence keys, no translation needed -->
     <string name="pref_commands_mode">pref_commands_mode</string>

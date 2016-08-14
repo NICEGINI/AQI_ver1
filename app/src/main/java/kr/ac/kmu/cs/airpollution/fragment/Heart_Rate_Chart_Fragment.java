@@ -67,8 +67,12 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
 
         @Override
         public void setClear() {
-            iv_bat.setImageResource(R.drawable.full_battery);
+            iv_bat.setImageResource(R.drawable.battery_empty);
             Const_rr_data.init();
+            mChart.clear();
+            initChart();
+            realTimeHeartBuffer.removeAllheartdata();
+
             tv_bat.setText("");
             tv_NN.setText("N/A");
             tv_NNF.setText("N/A");
@@ -77,8 +81,8 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
     };
 
     public int setbattery(){
-        return (Const.getBattery() < 10) ? R.drawable.battery_empty :  (Const.getBattery() < 25) ? R.drawable.battery_25_percent :
-                (Const.getBattery() < 50) ? R.drawable.battery_50_percent :  (Const.getBattery() < 75) ? R.drawable.battery_75_percent :
+        return (Const.getBattery() < 11) ? R.drawable.battery_empty :  (Const.getBattery() < 26) ? R.drawable.battery_25_percent :
+                (Const.getBattery() < 51) ? R.drawable.battery_50_percent :  (Const.getBattery() < 76) ? R.drawable.battery_75_percent :
                 (Const.getBattery() < 100) ? R.drawable.full_battery : R.drawable.full_battery;
 
     }
@@ -93,6 +97,11 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
 
         iv_bat = (ImageView)view.findViewById(R.id.iv_bat);
 
+        initChart();
+
+        return view;
+    }
+    public void initChart(){
         mChart = (LineChart)view.findViewById(R.id.lc_heart_rate);
 
         // no description text
@@ -150,8 +159,6 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
 
         YAxis rightAxis = mChart.getAxisRight();
         rightAxis.setEnabled(false);
-
-        return view;
     }
 
     public static void setChart(){

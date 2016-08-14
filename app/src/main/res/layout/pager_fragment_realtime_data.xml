@@ -120,16 +120,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
-                android:text="N/A"
                 android:id="@+id/tv_time_val"
-                android:layout_column="1" />
+                android:layout_column="1"
+                android:layout_weight="0.7" />
 
-            <TextView
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="( Unit : AQI )"
-                android:id="@+id/textView35"
-                android:gravity="right" />
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="0.1">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="( Unit : AQI )"
+                    android:id="@+id/textView37"
+                    android:layout_gravity="bottom" />
+
+            </LinearLayout>
 
         </TableRow>
 
@@ -232,14 +241,30 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_column="1" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TEMP"
-                android:textSize="20sp"
-                android:id="@+id/tv_temperature"
-                android:layout_gravity="center_horizontal"
-                android:layout_column="2" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TEMP"
+                    android:textSize="20sp"
+                    android:id="@+id/tv_temperature"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_column="2" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="  (℃)"
+                    android:id="@+id/textView36"
+                    android:layout_gravity="bottom" />
+            </LinearLayout>
+
         </TableRow>
 
         <TableRow

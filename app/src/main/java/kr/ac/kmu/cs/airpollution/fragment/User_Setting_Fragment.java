@@ -77,14 +77,6 @@ public class User_Setting_Fragment extends android.support.v4.app.Fragment {
             }
         });
 
-        tv_UDOO_board_Receive_Timeset.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                setAlertMSG(tv_UDOO_board_Receive_Timeset,"Receive time from UDOO board.", "Input data",2);
-            }
-        });
-
-
         setInfo();
         return view;
     }
@@ -113,9 +105,6 @@ public class User_Setting_Fragment extends android.support.v4.app.Fragment {
                         break;
                     case 1:
                         Const.setRealtimeDatasetRange(resultvalue);
-                        break;
-                    case 2:
-                        Const.setReceiveTimeFromUdoo(resultvalue);
                         break;
                 }
 
