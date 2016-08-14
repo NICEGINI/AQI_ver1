@@ -67,7 +67,7 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
 
         @Override
         public void setClear() {
-            iv_bat.setImageResource(R.drawable.full_battery);
+            iv_bat.setImageResource(R.drawable.battery_empty);
             Const_rr_data.init();
             mChart.clear();
             initChart();
@@ -81,8 +81,8 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
     };
 
     public int setbattery(){
-        return (Const.getBattery() < 10) ? R.drawable.battery_empty :  (Const.getBattery() < 25) ? R.drawable.battery_25_percent :
-                (Const.getBattery() < 50) ? R.drawable.battery_50_percent :  (Const.getBattery() < 75) ? R.drawable.battery_75_percent :
+        return (Const.getBattery() < 11) ? R.drawable.battery_empty :  (Const.getBattery() < 26) ? R.drawable.battery_25_percent :
+                (Const.getBattery() < 51) ? R.drawable.battery_50_percent :  (Const.getBattery() < 76) ? R.drawable.battery_75_percent :
                 (Const.getBattery() < 100) ? R.drawable.full_battery : R.drawable.full_battery;
 
     }
