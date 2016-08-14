@@ -32,6 +32,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -177,6 +178,31 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
         geo_latlng = new LatLng(geo_lat, geo_lng);
     }
 
+    public double calDistance(double lat1, double lon1, double lat2, double lon2){
+
+        double theta, dist;
+        theta = lon1 - lon2;
+        dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1))
+                * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+        dist = Math.acos(dist);
+        dist = rad2deg(dist);
+
+        dist = dist * 60 * 1.1515;
+        dist = dist * 1.609344;    // 단위 mile 에서 km 변환.
+        dist = dist * 1000.0;      // 단위  km 에서 m 로 변환
+
+        return dist;
+    }
+    // 주어진 도(degree) 값을 라디언으로 변환
+    private double deg2rad(double deg){
+        return (double)(deg * Math.PI / (double)180d);
+    }
+
+    // 주어진 라디언(radian) 값을 도(degree) 값으로 변환
+    private double rad2deg(double rad){
+        return (double)(rad * (double)180d / Math.PI);
+    }
+
     //set marker and circle
     public void setCircleNMarker(){
         if (circle != null) circle.remove();
@@ -209,7 +235,7 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
 
     // setting air color
     public String setBackgroundColor(double num){
-        return (num < 51) ? "#4000e400" : (num < 101) ? "#40d3d327" : (num < 151) ? "#40ff7e00" : (num < 200) ? "#40ff0000" :
+        return (num == 0) ? "#00000000" : (num < 51) ? "#4000e400" : (num < 101) ? "#40d3d327" : (num < 151) ? "#40ff7e00" : (num < 200) ? "#40ff0000" :
                 (num < 301) ? "#408f3f97" : (num < 500) ? "#407e0023" : "#407e0023";
     }
 
