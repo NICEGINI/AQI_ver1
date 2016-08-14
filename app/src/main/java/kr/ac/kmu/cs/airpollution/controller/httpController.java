@@ -373,12 +373,14 @@ public class httpController extends AsyncTask<String, String, String> {
                                 connectID = parser.getString("connectionID");
                                 Const.setUdooConnectId(connectID);
                                 Log.d("Req_connect_udoo",connectID);
+                                Toast.makeText(context,"Receive UDOO Connection ID",Toast.LENGTH_LONG).show();
                                 //Toast.makeText(context,"성공적으로 받음"+connectID,Toast.LENGTH_SHORT);
                                 break;
                             case REQ_CONNECT_HEART:
                                 connectID = parser.getString("connectionID");
                                 Const.setHeartConnectId(connectID);
                                 Log.d("Req_connect_heart",connectID);
+                                Toast.makeText(context,"Receive Polar Connection ID",Toast.LENGTH_LONG).show();
                                 realtimeService.setHeartConnect(true);
                                 break;
                             case SEND_HEART_REAL:
