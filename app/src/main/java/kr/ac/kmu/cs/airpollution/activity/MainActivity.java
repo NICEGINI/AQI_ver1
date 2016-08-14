@@ -444,9 +444,12 @@ public class MainActivity extends AppCompatActivity {
 
                         try {
                             Log.d("file add","파일 만들기 시작");
-                            long epoch = System.currentTimeMillis()/1000;
-                            String recTime = Long.toString(epoch);
-                            String file_name = "1_UD_"+recTime+"_"+Const.getUdooMac()+".csv";
+                            String tempA[] = Const.getUdooMac().split(":");
+                            String MAC = "";
+                            for (int i = 0; i < tempA.length; i++) {
+                                MAC = MAC.concat(tempA[i]);
+                            }
+                            String file_name = "1_UD_"+MAC+".csv";
                             File file = new File(Environment.getExternalStorageDirectory() + "/Download/"+file_name);
                             FileWriter fw = new FileWriter(file, true) ;
                             fw.write(temp);

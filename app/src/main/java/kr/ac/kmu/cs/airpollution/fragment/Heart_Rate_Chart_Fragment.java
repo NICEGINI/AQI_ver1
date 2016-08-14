@@ -35,7 +35,7 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
     private View view;
     private static LineChart mChart;
 
-    private static final int OFFSET = 7;
+    private static final int OFFSET = 5;
 
     private TextView tv_percent_NNF;
     private TextView tv_NNF;
@@ -152,7 +152,8 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
         xl.setDrawLabels(false);
 
         YAxis leftAxis = mChart.getAxisLeft();
-        leftAxis.setTextColor(Color.WHITE);
+        leftAxis.setTextSize(15);
+        leftAxis.setTextColor(Color.BLACK);
 //        leftAxis.setAxisMaxValue(180f);
 //        leftAxis.setAxisMinValue(0f);
         leftAxis.setDrawGridLines(true);
@@ -195,6 +196,7 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
         mChart.setVisibleXRangeMaximum(5);
         mChart.getAxisLeft().setAxisMaxValue(val+OFFSET);
         mChart.getAxisLeft().setAxisMinValue(val-OFFSET);
+
         //mChart.setVisibleYRangeMinimum(20f,YAxis.AxisDependency.RIGHT);
         //mChart.setVisibleYRangeMaximum(val_max,YAxis.AxisDependency.RIGHT);
         //mChart.setVisibleYRange(0,280,YAxis.AxisDependency.RIGHT);
