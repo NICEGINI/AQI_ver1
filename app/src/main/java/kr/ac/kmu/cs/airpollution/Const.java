@@ -16,12 +16,15 @@ public class Const {
     private static int REALTIME_DATASET_RANGE = 30;
     private static int RECEIVE_TIME_FROM_UDOO = 5;
     private static boolean UDOO_STATE = false;
-   // private static int connectID_UDOO = -1;
+    // private static int connectID_UDOO = -1;
     private static String UDOO_MAC;
     private static String UDOO_CONNECT_ID = "";
     private static String HEART_CONNECT_ID = "";
     private static int battery = 0;
     private static long start_chart_time = 0;
+    private static double all_ave_pm_data=0;
+    private static float f_all_ave_pm_data=0;
+
     public static long getStart_chart_time() {
         return start_chart_time;
     }
@@ -127,4 +130,10 @@ public class Const {
     public static void setReceiveTimeFromUdoo(int receiveTimeFromUdoo){
         RECEIVE_TIME_FROM_UDOO = receiveTimeFromUdoo;
     }
+
+    public static void setAll_ave_pm_data(double data){
+        all_ave_pm_data = data;
+    }
+
+    public static double getAll_ave_pm_data(){ return all_ave_pm_data;}
 }

@@ -39,7 +39,7 @@ import kr.ac.kmu.cs.airpollution.service.realtimeService;
 public class httpController extends AsyncTask<String, String, String> {
 
     public enum HTTP {
-        REQ_LOGIN(0), REQ_CONNECT_UDOO(1), REQ_CONNECT_HEART(2), SEND_UDOO_REAL(3), SEND_HEART_REAL(4),SEND_CSV(5);
+        REQ_LOGIN(0), REQ_CONNECT_UDOO(1), REQ_CONNECT_HEART(2), SEND_UDOO_REAL(3), SEND_HEART_REAL(4),SEND_CSV(5),REQ_ALL_AVE_AIR_DATA(6);
         private int value;
 
         private HTTP(int value) {
@@ -66,6 +66,7 @@ public class httpController extends AsyncTask<String, String, String> {
     public static final String URL_CONNECT = "http://teamb-iot.calit2.net/week3b/bluebase/receive/recieveApp.php/requestConnection";
     public static final String URL_TRANSFER = "http://teamb-iot.calit2.net/week3b/bluebase/receive/recieveApp.php/transferData";
     public static final String URL_CSV = "http://teamb-iot.calit2.net/week3b/bluebase/main/test/receivecsv.php";
+    public static final String URL_REQ_AVE_AIR = "http://teamb-iot.calit2.net/week3b/bluebase/receive/recieveApp.php/avgValue";
 
     public void showMsgDialog(String msg) {
         AlertDialog.Builder alert = new AlertDialog.Builder(context);
@@ -216,11 +217,29 @@ public class httpController extends AsyncTask<String, String, String> {
 //
 //            parser.put("data",jsonArray);
         Log.d("RealTimeData",json);
-            execute(URL_TRANSFER,json);
+        execute(URL_TRANSFER,json);
 
     };
 
-        //==================================================================
+    // request ave air data
+    public void recieve_ave_PMpollution(String airtype, double lat, double lng, int
+            radius) {
+        now = HTTP.REQ_ALL_AVE_AIR_DATA;
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("sensorType", airtype);
+            jsonObject.put("latitude", lat);
+            jsonObject.put("longitude", lng);
+            jsonObject.put("radius", radius);
+
+            execute(URL_REQ_AVE_AIR,jsonObject.toString());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //==================================================================
 
 
     @Override
@@ -326,6 +345,7 @@ public class httpController extends AsyncTask<String, String, String> {
         Log.d("onPostExecute",result);
         String status = "";
         String connectID;
+        String all_ave_air_data="";
         int type = -1;
         try {
             JSONObject parser = null;
@@ -364,6 +384,10 @@ public class httpController extends AsyncTask<String, String, String> {
                                 break;
                             case SEND_UDOO_REAL:
                                 Log.d("realtime","yes send");
+                                break;
+                            case REQ_ALL_AVE_AIR_DATA:
+                                all_ave_air_data = parser.getString("data");
+                                Const.setAll_ave_pm_data(Double.parseDouble(all_ave_air_data));
                                 break;
                         }
 

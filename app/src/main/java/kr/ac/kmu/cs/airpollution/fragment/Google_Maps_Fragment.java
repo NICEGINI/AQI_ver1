@@ -35,6 +35,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.phenotype.Flag;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,6 +51,7 @@ import java.net.URLConnection;
 import kr.ac.kmu.cs.airpollution.Buffer.locBuffer;
 import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.R;
+import kr.ac.kmu.cs.airpollution.controller.httpController;
 
 /**
  * Created by KCS on 2016-08-04.
@@ -145,31 +147,31 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
             // when make the map.
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
         }
-            // Click map
-            mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                @Override
-                public void onMapClick(LatLng latLng) {
-                    //String temp = getRegionAddress(latLng.latitude, latLng.longitude);
-                    setLATLNG(latLng);
+        // Click map
+        mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                //String temp = getRegionAddress(latLng.latitude, latLng.longitude);
+                setLATLNG(latLng);
 
-                    apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
-                            + geo_lat + "," + geo_lng;
+                apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
+                        + geo_lat + "," + geo_lng;
 
-                    new AsyncTask<String, String, String>(){
-                        @Override
-                        protected void onPostExecute(String s) {
-                            setCircleNMarker();
-                        }
+                new AsyncTask<String, String, String>(){
+                    @Override
+                    protected void onPostExecute(String s) {
+                        setCircleNMarker();
+                    }
 
-                        @Override
-                        protected String doInBackground(String... strings) {
-                            getLocationResult(apiURL);
-                            return null;
-                        }
-                    }.execute();
-                }
-            });
-        }
+                    @Override
+                    protected String doInBackground(String... strings) {
+                        getLocationResult(apiURL);
+                        return null;
+                    }
+                }.execute();
+            }
+        });
+    }
 
     //set Latitude Longitude
     public void setLATLNG(LatLng latLng){
@@ -178,38 +180,18 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
         geo_latlng = new LatLng(geo_lat, geo_lng);
     }
 
-    public double calDistance(double lat1, double lon1, double lat2, double lon2){
-
-        double theta, dist;
-        theta = lon1 - lon2;
-        dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1))
-                * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
-        dist = Math.acos(dist);
-        dist = rad2deg(dist);
-
-        dist = dist * 60 * 1.1515;
-        dist = dist * 1.609344;    // 단위 mile 에서 km 변환.
-        dist = dist * 1000.0;      // 단위  km 에서 m 로 변환
-
-        return dist;
-    }
-    // 주어진 도(degree) 값을 라디언으로 변환
-    private double deg2rad(double deg){
-        return (double)(deg * Math.PI / (double)180d);
-    }
-
-    // 주어진 라디언(radian) 값을 도(degree) 값으로 변환
-    private double rad2deg(double rad){
-        return (double)(rad * (double)180d / Math.PI);
-    }
-
     //set marker and circle
     public void setCircleNMarker(){
         if (circle != null) circle.remove();
         if(marker != null) marker.remove();
 
+        double all_ave_air_data = 0;
+        new httpController(getActivity()).recieve_ave_PMpollution("PM",geo_lat,geo_lng,Const.getCircleSize());
+        all_ave_air_data = Const.getAll_ave_pm_data();
+        Log.d("air_data", String.valueOf(all_ave_air_data));
+
         circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
-                radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor(setBackgroundColor(40))));
+                radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor(setBackgroundColor(all_ave_air_data))));
 
         // 맵 위치를 이동하기
         CameraUpdate update = CameraUpdateFactory.newLatLng(geo_latlng);
@@ -219,8 +201,8 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(geo_latlng)
                 .title(select_location)
-                .snippet(setCurrentAQIlevel(40))
-                .icon(BitmapDescriptorFactory.defaultMarker(setIconColor(40))); // need to modify.
+                .snippet(setCurrentAQIlevel(all_ave_air_data))
+                .icon(BitmapDescriptorFactory.defaultMarker((float)all_ave_air_data)); // need to modify.
 
         marker = mGoogleMap.addMarker(markerOptions);
         marker.showInfoWindow();
@@ -228,20 +210,20 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
     }
 
     //set icon color
-    public int setIconColor(float num){
+    public double setIconColor(float num){
         return  (num < 51) ? 110 : (num < 101) ? 50 : (num < 151) ? 35 : (num < 200) ? 0 :
                 (num < 301) ? 290 : (num < 500) ? 10 : 10;
     }
 
     // setting air color
     public String setBackgroundColor(double num){
-        return (num == 0) ? "#00000000" : (num < 51) ? "#4000e400" : (num < 101) ? "#40d3d327" : (num < 151) ? "#40ff7e00" : (num < 200) ? "#40ff0000" :
+        return (num == 0d) ? "#00000000" : (num < 51) ? "#4000e400" : (num < 101) ? "#40d3d327" : (num < 151) ? "#40ff7e00" : (num < 200) ? "#40ff0000" :
                 (num < 301) ? "#408f3f97" : (num < 500) ? "#407e0023" : "#407e0023";
     }
 
     // setting AQI level
     public String setCurrentAQIlevel(double num){
-        return  (num < 51) ? "Good" : (num < 101) ? "Moderrate" : (num < 151) ? "Unhealthy for sensitive groups" : (num < 200) ? "Unhealthy" :
+        return  (num == 0d) ? "Not Connect" : (num < 51) ? "Good" : (num < 101) ? "Moderrate" : (num < 151) ? "Unhealthy for sensitive groups" : (num < 200) ? "Unhealthy" :
                 (num < 301) ? "Very unhealthy" : (num < 500) ? "Hazardous" : "Hazardous";
     }
 
