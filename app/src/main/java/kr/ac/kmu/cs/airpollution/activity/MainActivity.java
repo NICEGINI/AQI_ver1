@@ -26,6 +26,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.StrictMode;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -70,6 +71,7 @@ import kr.ac.kmu.cs.airpollution.bluetooth.DeviceConnector;
 import kr.ac.kmu.cs.airpollution.bluetooth.DeviceData;
 import kr.ac.kmu.cs.airpollution.bluetooth.DeviceListActivity;
 import kr.ac.kmu.cs.airpollution.controller.httpController;
+import kr.ac.kmu.cs.airpollution.controller.sendCSV;
 import kr.ac.kmu.cs.airpollution.fragment.Realtime_Fragment;
 import kr.ac.kmu.cs.airpollution.service.realtimeService;
 import kr.ac.kmu.cs.airpollution.ble.BluetoothLeService;
@@ -442,19 +444,24 @@ public class MainActivity extends AppCompatActivity {
 
                         try {
                             Log.d("file add","파일 만들기 시작");
-
-                            File file = new File(Environment.getExternalStorageDirectory() + "/Download/"+i+"ok.txt");
+                            long epoch = System.currentTimeMillis()/1000;
+                            String recTime = Long.toString(epoch);
+                            String file_name = "1_UD_"+recTime+"_"+Const.getUdooMac()+".csv";
+                            File file = new File(Environment.getExternalStorageDirectory() + "/Download/"+file_name);
                             FileWriter fw = new FileWriter(file, true) ;
                             fw.write(temp);
                             fw.flush();
 
                             // 객체 닫기
                             fw.close();
+                            StrictMode.enableDefaults();
+                            new sendCSV(MainActivity.this,file_name).uploadFile();
+
                             i++;
                             Log.d("file add i",i+"");
 
                             Log.d("file add","파일 만듬");
-                            Toast.makeText(MainActivity.this,"CSV file received from UDOO",Toast.LENGTH_SHORT);
+                            Toast.makeText(MainActivity.this,"CSV file received from UDOO",Toast.LENGTH_SHORT).show();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

@@ -39,7 +39,7 @@ import kr.ac.kmu.cs.airpollution.service.realtimeService;
 public class httpController extends AsyncTask<String, String, String> {
 
     public enum HTTP {
-        REQ_LOGIN(0), REQ_CONNECT_UDOO(1), REQ_CONNECT_HEART(2), SEND_UDOO_REAL(3), SEND_HEART_REAL(4);
+        REQ_LOGIN(0), REQ_CONNECT_UDOO(1), REQ_CONNECT_HEART(2), SEND_UDOO_REAL(3), SEND_HEART_REAL(4),SEND_CSV(5);
         private int value;
 
         private HTTP(int value) {
@@ -65,6 +65,7 @@ public class httpController extends AsyncTask<String, String, String> {
     public static final String URL_LOGIN = "http://teamb-iot.calit2.net/week3b/bluebase/receive/recieveApp.php/loginAPP";
     public static final String URL_CONNECT = "http://teamb-iot.calit2.net/week3b/bluebase/receive/recieveApp.php/requestConnection";
     public static final String URL_TRANSFER = "http://teamb-iot.calit2.net/week3b/bluebase/receive/recieveApp.php/transferData";
+    public static final String URL_CSV = "http://teamb-iot.calit2.net/week3b/bluebase/main/test/receivecsv.php";
 
     public void showMsgDialog(String msg) {
         AlertDialog.Builder alert = new AlertDialog.Builder(context);
@@ -144,6 +145,10 @@ public class httpController extends AsyncTask<String, String, String> {
 
         execute(URL_CONNECT, json);
         Log.d("URL_CONNECT","URL_CONNECT");
+    }
+    public void sendCSV(String fileName){
+        now = HTTP.SEND_CSV;
+        execute(URL_CSV,fileName);
     }
 
     //=====================================================================
@@ -241,6 +246,11 @@ public class httpController extends AsyncTask<String, String, String> {
             conn.setReadTimeout(READ_TIMEOUT);
             conn.setConnectTimeout(CONNECTION_TIMEOUT);
             conn.setRequestMethod("POST");
+            if(now == HTTP.SEND_CSV){
+                conn.setRequestProperty("uploaded_file", params[1]);
+
+
+            }
             String query = "";
             if(now == HTTP.REQ_LOGIN){
                 Uri.Builder builder = new Uri.Builder()

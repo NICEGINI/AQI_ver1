@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -34,6 +35,8 @@ import java.net.URL;
 import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.R;
 import kr.ac.kmu.cs.airpollution.controller.httpController;
+
+import kr.ac.kmu.cs.airpollution.controller.sendCSV;
 import kr.ac.kmu.cs.airpollution.fragment.User_Setting_Fragment;
 
 /**
@@ -45,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button btn_forgot_password;
     private EditText et_Email;
     private EditText et_Password;
-
+    int i = 1;
     private boolean test_flag = false;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,16 +82,17 @@ public class LoginActivity extends AppCompatActivity {
                         new httpController(LoginActivity.this).checkLogin(et_Email.getText().toString(), et_Password.getText().toString());;
 
                         et_Password.setText("");
-                      //=================================================================
-                        //커넥션부분
+
+                    }
+                }
+                //=================================================================
+                //커넥션부분
 //                        String email = "shineleaver@gmail.com";
 //                        String devMAC = "A1:B2:C3:D4:E5:F6";
 //                        long epoch = System.currentTimeMillis()/1000;
 //                        String recTime = Long.toString(epoch);
 //                        new httpController(LoginActivity.this).reqConnect(email,recTime,devMAC);
-                        //=============================================================
-                    }
-                }
+                //=============================================================
             }
         }) ;
 
@@ -101,8 +105,7 @@ public class LoginActivity extends AppCompatActivity {
                 WebControlActivity.setUrl("http://teamb-iot.calit2.net/week3b/bluebase/signup/signup.html");//"http://teamb-iot.calit2.net/week3b/bluebase/signup/signup.html"
                 startActivity(intent);
                 et_Password.setText("");
-//                Intent intent = new Intent(Intent.ACTION_VIEW,Uri.parse("http://teamb-iot.calit2.net/week3b/bluebase/signup/signup.html"));
-//                startActivity(intent);
+
             }
         }) ;
 
