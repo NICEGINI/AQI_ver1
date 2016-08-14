@@ -24,4 +24,7 @@ public class realTimeHeartBuffer {
     public static int getLength(){
         return heartRateBuffer.size();
     }
+    public static void removeAllheartdata(){
+        heartRateBuffer.clear();
+    }
 }

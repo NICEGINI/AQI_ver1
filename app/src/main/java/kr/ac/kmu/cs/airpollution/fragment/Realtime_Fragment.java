@@ -360,7 +360,6 @@ public class Realtime_Fragment extends Fragment {
         menu.setHeaderTitle("Option");
         menu.add(0,1,100, "Air data Graph");
         menu.add(0,2,100, "Air Data History");
-        menu.add(0,3,100, "etc...");
 
         super.onCreateContextMenu(menu, v, menuInfo);
     }
@@ -370,7 +369,7 @@ public class Realtime_Fragment extends Fragment {
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case 1: // select option1
-                Toast.makeText(view.getContext(), "Option select.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(view.getContext(), "Graph selected.", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getContext(),Realtime_Chart_Activity.class);
 
                 startActivity(intent);
@@ -379,10 +378,6 @@ public class Realtime_Fragment extends Fragment {
                 return true;
 
             case 2: // select option2
-
-                return true;
-
-            case 3: // select option3
 
                 return true;
         }
