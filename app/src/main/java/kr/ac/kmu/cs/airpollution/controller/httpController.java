@@ -222,7 +222,7 @@ public class httpController extends AsyncTask<String, String, String> {
     };
 
     // request ave air data
-    public void recieve_ave_PMpollution(String airtype, double lat, double lng, int
+    public void recieve_ave_PMpollution(String airtype, double lat, double lng, double
             radius) {
         now = HTTP.REQ_ALL_AVE_AIR_DATA;
         JSONObject jsonObject = new JSONObject();
@@ -232,6 +232,7 @@ public class httpController extends AsyncTask<String, String, String> {
             jsonObject.put("longitude", lng);
             jsonObject.put("radius", radius);
 
+            Log.d("send_air_json",jsonObject.toString());
             execute(URL_REQ_AVE_AIR,jsonObject.toString());
 
         } catch (JSONException e) {
@@ -387,7 +388,10 @@ public class httpController extends AsyncTask<String, String, String> {
                                 break;
                             case REQ_ALL_AVE_AIR_DATA:
                                 all_ave_air_data = parser.getString("data");
+                                if(all_ave_air_data.toString().equals("null"))
+                                    all_ave_air_data = "0";
                                 Const.setAll_ave_pm_data(Double.parseDouble(all_ave_air_data));
+                                Const.drawCircle();
                                 break;
                         }
 

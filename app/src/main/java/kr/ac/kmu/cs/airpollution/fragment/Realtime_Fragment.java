@@ -359,7 +359,6 @@ public class Realtime_Fragment extends Fragment {
         //Log.d("test","onCreateContextMenu");
         menu.setHeaderTitle("Option");
         menu.add(0,1,100, "Air data Graph");
-        menu.add(0,2,100, "Air Data History");
 
         super.onCreateContextMenu(menu, v, menuInfo);
     }
@@ -375,10 +374,6 @@ public class Realtime_Fragment extends Fragment {
                 startActivity(intent);
                 realtimeChartFragment.flagSet.setFalse();
                 //Realtime_Chart_Activity.setSeleted(current_air);
-                return true;
-
-            case 2: // select option2
-
                 return true;
         }
         return super.onContextItemSelected(item);

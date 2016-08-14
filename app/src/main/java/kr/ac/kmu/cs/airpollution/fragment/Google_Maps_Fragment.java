@@ -118,6 +118,7 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         //이곳에서 모든 구글맵에 관한 메소드를 적용시킴 리스너 포함
         mGoogleMap = googleMap;
+        Const.setmGoogleMap(googleMap);
 
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -178,6 +179,7 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
         geo_lat = latLng.latitude;
         geo_lng = latLng.longitude;
         geo_latlng = new LatLng(geo_lat, geo_lng);
+        Const.setgeo_latlng(geo_lat, geo_lng);
     }
 
     //set marker and circle
@@ -186,27 +188,29 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
         if(marker != null) marker.remove();
 
         double all_ave_air_data = 0;
-        new httpController(getActivity()).recieve_ave_PMpollution("PM",geo_lat,geo_lng,Const.getCircleSize());
-        all_ave_air_data = Const.getAll_ave_pm_data();
+        Const.setRadius_to_latlng();
+
+        new httpController(getActivity()).recieve_ave_PMpollution("PM", geo_lat, geo_lng, Const.getradius_to_latlng());
+        //all_ave_air_data = Const.getAll_ave_pm_data();
         Log.d("air_data", String.valueOf(all_ave_air_data));
 
-        circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
-                radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor(setBackgroundColor(all_ave_air_data))));
-
-        // 맵 위치를 이동하기
-        CameraUpdate update = CameraUpdateFactory.newLatLng(geo_latlng);
-
-        mGoogleMap.moveCamera(update);
-
-        MarkerOptions markerOptions = new MarkerOptions()
-                .position(geo_latlng)
-                .title(select_location)
-                .snippet(setCurrentAQIlevel(all_ave_air_data))
-                .icon(BitmapDescriptorFactory.defaultMarker((float)all_ave_air_data)); // need to modify.
-
-        marker = mGoogleMap.addMarker(markerOptions);
-        marker.showInfoWindow();
-        marker.setVisible(true);
+//        circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
+//                radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor(setBackgroundColor(all_ave_air_data))));
+//
+//        // 맵 위치를 이동하기
+//        CameraUpdate update = CameraUpdateFactory.newLatLng(geo_latlng);
+//
+//        mGoogleMap.moveCamera(update);
+//
+//        MarkerOptions markerOptions = new MarkerOptions()
+//                .position(geo_latlng)
+//                .title(select_location)
+//                .snippet(setCurrentAQIlevel(all_ave_air_data))
+//                .icon(BitmapDescriptorFactory.defaultMarker((float)all_ave_air_data)); // need to modify.
+//
+//        marker = mGoogleMap.addMarker(markerOptions);
+//        marker.showInfoWindow();
+//        marker.setVisible(true);
     }
 
     //set icon color
@@ -262,7 +266,8 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
             result += ", "+ (String) ((JSONObject) jArray.get(2)).get("short_name");
             Log.d("json",jsonString);
             Log.d("json_res",result);
-            select_location = result;
+            Const.set_sel_location(result);
+//            select_location = result;
 //            result = (String) jObj.get("formatted_address");
         } catch (JSONException e) {
             e.printStackTrace();

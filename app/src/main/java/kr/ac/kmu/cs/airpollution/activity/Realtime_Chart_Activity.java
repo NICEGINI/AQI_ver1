@@ -41,6 +41,7 @@ import java.net.URLConnection;
 import kr.ac.kmu.cs.airpollution.Buffer.locBuffer;
 import kr.ac.kmu.cs.airpollution.Const;
 import kr.ac.kmu.cs.airpollution.R;
+import kr.ac.kmu.cs.airpollution.controller.httpController;
 import kr.ac.kmu.cs.airpollution.fragment.realtimeChartFragment;
 
 
@@ -75,8 +76,14 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
         public void changePosition(LatLng position) {
             if(position != null) {
                 //mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
-                setLATLNG(position);
-                setCircleNMarker();
+//                setLATLNG(position);
+//                setCircleNMarker();
+                apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
+                        + geo_lat + "," + geo_lng;
+                getLocationResult(apiURL);
+                Const.setgeo_latlng(geo_lat, geo_lng);
+                Const.setRadius_to_latlng();
+                new httpController(Realtime_Chart_Activity.this).recieve_ave_PMpollution("PM", geo_lat, geo_lng, Const.getradius_to_latlng());
             }
             Log.d("testtest","okok");
         }
@@ -109,6 +116,7 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
     public void onMapReady(GoogleMap googleMap) {
         //이곳에서 모든 구글맵에 관한 메소드를 적용시킴 리스너 포함
         mGoogleMap = googleMap;
+        Const.setmGoogleMap(googleMap);
         //mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -145,11 +153,13 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
 
                 apiURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
                         + geo_lat + "," + geo_lng;
-
+                Const.setgeo_latlng(geo_lat, geo_lng);
                 new AsyncTask<String, String, String>(){
                     @Override
                     protected void onPostExecute(String s) {
-                        setCircleNMarker();
+//                        setCircleNMarker();
+                        Const.setRadius_to_latlng();
+                        new httpController(Realtime_Chart_Activity.this).recieve_ave_PMpollution("PM", geo_lat, geo_lng, Const.getradius_to_latlng());
                     }
 
                     @Override
@@ -242,6 +252,7 @@ public class Realtime_Chart_Activity extends Activity implements OnMapReadyCallb
             Log.d("json",jsonString);
             Log.d("json_res",result);
             select_location = result;
+            Const.set_sel_location(result);
 //            result = (String) jObj.get("formatted_address");
         } catch (JSONException e) {
             e.printStackTrace();

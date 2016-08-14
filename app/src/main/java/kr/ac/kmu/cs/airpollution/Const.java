@@ -1,5 +1,18 @@
 package kr.ac.kmu.cs.airpollution;
 
+import android.graphics.Color;
+import android.util.Log;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.util.UUID;
 
 /**
@@ -23,8 +36,21 @@ public class Const {
     private static int battery = 0;
     private static long start_chart_time = 0;
     private static double all_ave_pm_data=0;
-    private static float f_all_ave_pm_data=0;
+    private static double radius_to_latlng=0;
 
+    private static double geo_lat;
+    private static double geo_lng;
+    private static LatLng geo_latlng;
+    private static String select_location;
+    private static GoogleMap mGoogleMap;
+    private static Marker marker;
+    private static Circle circle;
+
+
+    public static void set_sel_location(String loc){
+        select_location = loc;
+
+    }
     public static long getStart_chart_time() {
         return start_chart_time;
     }
@@ -101,6 +127,7 @@ public class Const {
 
     public static void setCircleSize(int circleSize) {
         CIRCLE_SIZE = circleSize;
+        radius_to_latlng =  circleSize * 0.00000721815;
     }
 
     //Google Map
@@ -136,4 +163,62 @@ public class Const {
     }
 
     public static double getAll_ave_pm_data(){ return all_ave_pm_data;}
+
+    public static void setRadius_to_latlng() {
+        radius_to_latlng =  CIRCLE_SIZE * 0.00000721815;
+    }
+
+    public static double getradius_to_latlng()
+    {
+        return radius_to_latlng;
+    }
+
+    public static void setgeo_latlng(double lat, double lng){
+        geo_latlng = new LatLng(lat, lng);
+    }
+
+    public static void setmGoogleMap(GoogleMap gmap){
+        mGoogleMap = gmap;
+    }
+
+    public static void drawCircle(){
+        if (circle != null) circle.remove();
+        if(marker != null) marker.remove();
+
+        circle = mGoogleMap.addCircle(new CircleOptions().center(geo_latlng).
+                radius(Const.getCircleSize()).strokeColor(Color.parseColor("#ff000000")).fillColor(Color.parseColor(setBackgroundColor(all_ave_pm_data))));
+
+        // 맵 위치를 이동하기
+        CameraUpdate update = CameraUpdateFactory.newLatLng(geo_latlng);
+
+        mGoogleMap.moveCamera(update);
+
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(geo_latlng)
+                .title(select_location)
+                .snippet(setCurrentAQIlevel(all_ave_pm_data))
+                .icon(BitmapDescriptorFactory.defaultMarker((float)all_ave_pm_data)); // need to modify.
+
+        marker = mGoogleMap.addMarker(markerOptions);
+        marker.showInfoWindow();
+        marker.setVisible(true);
+    }
+
+    //set icon color
+    public double setIconColor(float num){
+        return  (num < 51) ? 110 : (num < 101) ? 50 : (num < 151) ? 35 : (num < 200) ? 0 :
+                (num < 301) ? 290 : (num < 500) ? 10 : 10;
+    }
+
+    // setting air color
+    public static String setBackgroundColor(double num){
+        return (num == 0d) ? "#00000000" : (num < 51) ? "#4000e400" : (num < 101) ? "#40d3d327" : (num < 151) ? "#40ff7e00" : (num < 200) ? "#40ff0000" :
+                (num < 301) ? "#408f3f97" : (num < 500) ? "#407e0023" : "#407e0023";
+    }
+
+    // setting AQI level
+    public static String setCurrentAQIlevel(double num){
+        return  (num == 0d) ? "No data" : (num < 51) ? "Good" : (num < 101) ? "Moderrate" : (num < 151) ? "Unhealthy for sensitive groups" : (num < 200) ? "Unhealthy" :
+                (num < 301) ? "Very unhealthy" : (num < 500) ? "Hazardous" : "Hazardous";
+    }
 }
