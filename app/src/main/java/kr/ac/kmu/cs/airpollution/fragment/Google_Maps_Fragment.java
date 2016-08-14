@@ -193,8 +193,8 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(geo_latlng)
                 .title(select_location)
-                .snippet("AQI")
-                .icon(BitmapDescriptorFactory.defaultMarker(setIconColor(140))); // need to modify.
+                .snippet(setCurrentAQIlevel(40))
+                .icon(BitmapDescriptorFactory.defaultMarker(setIconColor(40))); // need to modify.
 
         marker = mGoogleMap.addMarker(markerOptions);
         marker.showInfoWindow();
@@ -209,8 +209,8 @@ public class Google_Maps_Fragment extends Fragment implements OnMapReadyCallback
 
     // setting air color
     public String setBackgroundColor(double num){
-        return (num < 51) ? "#8000e400" : (num < 101) ? "#80d3d327" : (num < 151) ? "#80ff7e00" : (num < 200) ? "#80ff0000" :
-                (num < 301) ? "#808f3f97" : (num < 500) ? "#807e0023" : "#807e0023";
+        return (num < 51) ? "#4000e400" : (num < 101) ? "#40d3d327" : (num < 151) ? "#40ff7e00" : (num < 200) ? "#40ff0000" :
+                (num < 301) ? "#408f3f97" : (num < 500) ? "#407e0023" : "#407e0023";
     }
 
     // setting AQI level

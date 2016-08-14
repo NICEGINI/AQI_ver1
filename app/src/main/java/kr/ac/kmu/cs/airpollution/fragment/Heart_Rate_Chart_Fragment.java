@@ -69,6 +69,10 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
         public void setClear() {
             iv_bat.setImageResource(R.drawable.full_battery);
             Const_rr_data.init();
+            mChart.clear();
+            initChart();
+            realTimeHeartBuffer.removeAllheartdata();
+
             tv_bat.setText("");
             tv_NN.setText("N/A");
             tv_NNF.setText("N/A");
@@ -93,6 +97,11 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
 
         iv_bat = (ImageView)view.findViewById(R.id.iv_bat);
 
+        initChart();
+
+        return view;
+    }
+    public void initChart(){
         mChart = (LineChart)view.findViewById(R.id.lc_heart_rate);
 
         // no description text
@@ -150,8 +159,6 @@ public class Heart_Rate_Chart_Fragment extends Fragment {
 
         YAxis rightAxis = mChart.getAxisRight();
         rightAxis.setEnabled(false);
-
-        return view;
     }
 
     public static void setChart(){
